@@ -1,0 +1,158 @@
+Observability:
+We use this know about the internal State of a System. Here the system can be a application or a device or a network.
+It divides into three parameters. They are:
+1. Metrics
+2. Logging
+3. Traces
+
+1. Metrics: What are the things that got passed or failed or high and low.
+Means these are numerical values of a systems internal parts which are like 
+Memory Utilization, CPU Utilization, Disk Space, For an application how HTTP requests were passed and failed.
+
+2. Logging: It says about why the situation occurs.
+It gives information about why the CPU got utilized and why it got triggered at a given time.
+It gives why our system in this state and also provides information about it where we can try to fix it with the info.
+Where the memory is being utilized more.
+
+3. Traces: Lifecycle of a request, where it goes and where it ends.
+
+Difference between Observability and Monitoring?
+Here Monitoring is a part of Observability
+Monitoring only deals with Metrics only like if the system got out of space suddenly or memory utilization gets increased
+suddenly then we will fix some ALERTS and create some DASHBOARDS using grafana for them.
+
+MONITORING:
+Combination Metrics Alerts and Dashboards of this metrics that genertes the values periodically is called Monitoring.
+Metrics:
+It is the historical data or periodical data of the events occurs in a system.
+
+Prometheus:
+It is an open source monitoring and alerting tool for applications and systems.
+It has three main components:
+Retrieval:
+It will retrieve the data and info about the systems metrics from the Exporters.
+Time Series DataBase(TSDB):
+The data i.e. retrieved from above step will be stored in this TSDB on time basis.
+HTTP Server:
+This is used as response provider like using PROMQL a user can able to get the data from TSDB using HTTP server.
+When the user sends a request in  PROMQL then HTTP server will gives us the response of metrics.
+
+Exporters:
+There different type of exporters like these are used to extract the information of metrics from systems or apps or K8's clusters
+using Service Discovery Mechanism.
+
+Exporters are small applications that collect metrics from various third-party systems and expose them 
+in a format Prometheus can scrape. 
+
+Node Exporter:
+It will collect the metrics from the nodes or instances of a K8 cluster.
+
+Service Discovery:
+It is mechanism to extract the metrics from various systems using endpoints.
+Service discovery automatically identifies and manages the list of scrape targets (i.e., services or applications) that 
+Prometheus monitors.
+
+Kube State metrics using api calls to and it calls API Server in master node regarding pods and scrapes the metrics for Prometheus.
+
+OIDC Provider:
+When a service like Prometheus installed in a EKS Cluster wants to contact with any aws services of that account then we need an 
+OIDC Provider.
+
+Node Groups: 
+A node group is a logical grouping of worker nodes with the same configuration and lifecycle managemen
+
+Prometheus will provide all the metrics and access to all those to anyone who has access to the Prometheus and also alerting.
+Grafana we use it better visualization for each metrics and we can customize them in a way that we can only visible few metrics 
+according to the role of that user.
+
+Observability Day-3: Using box-crash as example pod we will visualize the crashes
+First we will create eks cluster in AWS using cli commands --> create IAM OIDC Provider for that cluster--> Create a node group to 
+give compute capacity fro cluster by installing ec2 Instances through nodegroup(worker nodes) --> Installing prometheus repo on vm
+--> Then create a new namespace using kubectl --> git clone the repo that we use --> Using helm chart support install alert manager
+--> It will install Prometheus pods, kube-state metrics, node-exporter, grafana pods up and running in the cluster of namespace
+monitoring --> Using port-forward we will run the Prometheus, Grafana, Alert Manager and all--> Now, try a randome box-crash container
+and run it using that we can visulize the metrics from prometheus regarding restarts of pod.
+
+Open the ports for Prometheus(9093) and Grafana(8080) in SG of instance we create the cluster.
+
+Difference between Logging and Traces:
+Let’s say you have a microservices-based e-commerce app.
+
+🔸 Trace Example (via Tempo)
+A user places an order. The trace shows:
+frontend → order-service → payment-service → inventory-service
+
+Each step has a span with duration and status.
+You can see where the request slowed down (e.g., payment-service took 3s).
+🔸 Log Example (via Loki)
+The payment-service logs:
+
+2025-04-29 10:15:23 ERROR Payment failed for order #1234: Card declined
+This log helps you understand why the payment failed.
+
+ELK: ElasticSearch, Logstash, Kibana
+In this ELK Stack first comes, 
+
+ElasticSearch: Port- 9200
+Here, basically the data will comes from the Logstash, the entire log data will get stored in the ElasticSearch and these 
+data will get indexed here. So that if anything we want can be easily accessible for any query.
+
+Logstash:Port-5044
+It is used to process the raw data log file from an Application or a request or anything.
+Using Logstash, we can able parse and filter the log file data in the etc/logstash/conf.d/logstash.conf file, where in this 
+file we can find a "grok" component where we can configure in such a way that we need to parse the data.
+Ex:
+filter {
+ grok {
+ match => { "message" => "%{TIMESTAMP_ISO8601:log_timestamp} %{LOGLEVEL:log_level}
+%{GREEDYDATA:log_message}" }
+ }
+}
+
+After this parsing, the data will be sent to ElasticSearch, where the data will get indexed there. So that we can able to 
+query the required data that we want from ElasticSearch.
+Also, in output component we will give the elasticsearch info, So that the data will get stored there.
+Ex:
+output {
+ elasticsearch {
+ hosts => ["http://localhost:9200"]
+ index => "logs-%{+YYYY.MM.dd}"
+ }
+ stdout { codec => rubydebug }
+}
+
+Kibana uses port 5601 by default for its web application interface.
+
+Metrics displayed by Grafana:
+System Performance Metrics: 
+CPU Usage: Percentage of CPU utilization, broken down by core or overall.
+Memory Usage: Amount of RAM used and available, often with swap usage.
+Disk I/O: Read and write speeds, disk space usage, and latency.
+Network Traffic: Bandwidth usage, packet loss, and connection latency.
+System Load: Average number of processes in the run queue.
+Uptime: Time since the system was last restarted.
+
+Application Performance Metrics: 
+Request Latency: Time taken to process a single request (e.g., in milliseconds).
+Error Rates: Number or percentage of failed requests.
+Throughput: Number of requests processed per second or minute.
+Response Codes: HTTP status codes (e.g., 200, 404, 500) and their counts.
+Queue Lengths: Number of tasks waiting to be processed.
+Cache Hit/Miss Ratio: For applications using caching.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

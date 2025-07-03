@@ -1,0 +1,239 @@
+Top Shell Scripts Asked in Interviews
+
+1. Backup Script
+Task: Write a script to back up a directory (e.g., /var/log/) to another location, compress it, and add a
+timestamp to the filename.
+
+#!/bin/bash
+
+src_dir="/var/log"
+backup_dir="/backup/logs"
+
+filename="log_backup_$(date +%Y%m%d_%H%M%S).tar.gz"
+
+#tar -czf destination source
+
+tar -czf $backup_dir/$filename $src_dir 
+
+echo "Backup completed: $filename"
+
+-c is creating and archive.
+-x is extracting and archive.
+-z is using gzip compression.
+-v is providing details of the files that have been archived.
+-f is creating an archive with the name 'logs_archive.tar.gz' as supplied in the command above.
+
+
+Disk Usage Alert Script
+Task: Monitor disk usage and send an alert if usage exceeds a defined threshold.
+
+#!/bin/bash
+
+threshold=40
+
+usage=$(df -h | grep /dev/root | awk '{print $5}' | sed 's/%//')
+
+if [ "$usage" -gt "$threshold" ]; then
+         echo "Disk usage at $usage%, sending alert!"
+         echo "Disk usage alert" | mail -s "Disk usage Warning" sivesh234@gmail.com
+
+fi
+
+sed --> Stream Editor used to manipulate the Text. Here sed is to remove "%" symbol from usage percent and fill it with empty space.
+
+--------------------------------------------------
+
+Service Monitoring Script
+Task: Check if a service (e.g., Apache) is running, and restart it if it is down.
+
+#!/bin/bash
+service="apache2"
+
+if ! systemctl is-active --quiet $service; then
+ echo "$service is down, restarting..."
+ systemctl start $service
+else
+ echo "$service is running."
+fi
+
+---------------------------------------------------
+
+User Creation Script
+Task: Create users from a file containing usernames.
+
+#!/bin/bash
+input="users.txt"
+while IFS= read -r user
+do
+ useradd -m $user
+ echo "User $user created."
+done < "$input"
+
+or 
+
+#!/bin/bash
+#
+file="names.txt"
+
+if [[ ! -f $file ]]; then
+        echo "$file not exist"
+        exit1
+fi
+while IFS= read -r name; do
+        if id "$name" &>/dev/null; then
+                echo "User is already there"
+
+        else
+                useradd -m $name
+                echo "$name user is created"
+        fi
+done < "$file"
+ IFS stands for Internal Field Separator. It is a special shell variable that determines how Bash 
+ recognizes word boundaries while splitting a sequence of character strings.
+ 
+ ex:
+echo "Custom IFS value:"
+IFS=":"
+string="foo:bar:baz"
+for word in $string; do
+	echo "$word"
+done
+
+output : foo bar baz
+-----------------------------------------------------
+
+Log Rotation Script
+Task: Rotate logs by compressing logs older than 7 days.
+
+#!/bin/bash
+log_dir="/var/log/myapp"
+
+find $log_dir -type f -name "*.log" -mtime +7 -exec tar -czf {}.tar.gz {} \; -exec rm {} \;
+echo "Logs older than 7 days have been archived."
+
+here 
+find $LOG_DIR: This command starts by searching in the directory specified by the variable $LOG_DIR.
+-type f: This option tells find to look for files (not directories).
+-mtime +7: This option finds files that were last modified more than 7 days ago.
+-exec tar -czf {}.tar.gz {} \;: For each file found, this part of the command executes tar to create a compressed archive (.tar.gz)
+ of the file. The {} is a placeholder for the current file found by find. The \; indicates the end of the -exec command.
+-exec rm {} \;:
+ After creating the compressed archive, this part of the command executes rm to remove the original file. 
+ Again, {} is a placeholder for the current file, and \; indicates the end of the -exec command.
+
+--------------------------------------------------
+
+File Archiving Script
+Task: Archive files older than 7 days.
+
+#!/bin/bash
+src_dir="/data/files"
+archive_dir="/archive"
+
+find $src_dir -type f -mtime +7 -exec mv {} $archive_dir \;
+echo "Archived files older than 7 days."
+
+--------------------------------------------------
+
+Database Backup Script
+Task: Back up a MySQL database.
+
+#!/bin/bash
+db_name="mydatabase"
+backup_dir="/backup/db"
+filename="db_backup_$(date +%Y%m%d_%H%M%S).sql.gz"
+mysqldump -u root -p $db_name | gzip > $backup_dir/$filename
+echo "Database backup completed: $filename"
+
+--------------------------------------------------------
+
+Log File Parsing Script
+Task: Extract specific keywords from a log file.
+
+#!/bin/bash
+logfile="/var/log/syslog"
+keyword="ERROR"
+
+grep $keyword $logfile > error_log.txt
+echo "All ERROR entries saved to error_log.txt."
+
+----------------------------------------------------------
+
+File Processing Script (Processing 100 lines at a time)
+Task: Process a large file in chunks.
+
+#!/bin/bash
+filename="largefile.txt"
+chunk_size=100
+split -l $chunk_size $filename part_
+
+for file in part_*
+do
+ echo "Processing $file..."
+ # Do some processing here
+ rm $file
+done
+
+-----------------------------------------
+
+Automated Remote File Transfer Script
+Task: Automate the transfer of files from a local machine to a remote server.
+
+#!/bin/bash
+src_dir="/local/path"
+dest_user="user"
+dest_server="server.com"
+dest_dir="/remote/path"
+scp -r $src_dir $dest_user@$dest_server:$dest_dir
+echo "Files transferred to $dest_server."
+
+-----------------------------------------------
+
+Write a shell script to check if file exists in particular path and it is writable or not.
+
+#!/bin/bash
+
+# Check if a file path is provided as an argument
+if [ -z "$1" ]; then
+  echo "Usage: $0 <file_path>"
+  exit 1
+fi
+
+FILE_PATH="$1"
+
+# Check if the file exists
+if [ -f "$FILE_PATH" ]; then
+  echo "File '$FILE_PATH' exists."
+
+  # Check if the file is writable
+  if [ -w "$FILE_PATH" ]; then
+    echo "File '$FILE_PATH' is writable."
+  else
+    echo "File '$FILE_PATH' is not writable."
+  fi
+else
+  echo "File '$FILE_PATH' does not exist."
+fi
+Explanation:
+if [ -z "$1" ]; then ... fi: This block checks if the first command-line argument ($1) is empty.
+If no file path is provided, it prints a usage message and exits.
+
+FILE_PATH="$1": The provided file path from the command-line argument is stored in the FILE_PATH variable.
+if [ -f "$FILE_PATH" ]; then ... fi: This condition checks if the FILE_PATH refers to a regular file.
+If true, it prints a message indicating the file exists.
+It then proceeds to check for writability using if [ -w "$FILE_PATH" ]; then ... fi.
+If FILE_PATH is writable, a corresponding message is printed.
+Otherwise, a message indicating it's not writable is displayed.
+else ... fi: If the initial [ -f "$FILE_PATH" ] condition is false (meaning the file does not exist or is not a regular file), 
+it prints a message indicating that the file does not exist.
+To run the script:
+Save the code to a file (e.g., check_file.sh).
+Make the script executable: chmod +x check_file.sh.
+Run the script with the desired file path as an argument: ./check_file.sh /path/to/your/file.txt.
+
+
+
+
+
+
+

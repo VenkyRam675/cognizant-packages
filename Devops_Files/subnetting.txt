@@ -1,0 +1,42 @@
+Example 1: An organization is assigned a class C network address of 201.35.2.0. It uses a netmask of 255.255.255.192 to divide this into sub-networks. 
+Which of the following is/are valid host IP addresses? 201.35.2.129 201.35.2.191 201.35.2.255 Both (A) and (C)Explain in detail
+
+To determine which IP address is **not** a valid broadcast address for any subnetwork, we need to understand the subnetting with the given subnet mask.
+
+### Step-by-Step Explanation:
+
+1. **Class C Network Address**:
+   - The given network address is 201.32.64.0, which is a Class C address. Class C addresses have a default subnet mask of 255.255.255.0.
+
+2. **Subnet Mask**:
+   - The given subnet mask is 255.255.255.248. In binary, this is:
+     ```
+     11111111.11111111.11111111.11111000
+     ```
+   - This means the first 29 bits are the network part, and the remaining 3 bits are for host addresses.
+
+3. **Subnet Calculation**:
+   - With a subnet mask of 255.255.255.248, we can calculate the number of subnets and hosts per subnet:
+     - Number of subnets: \(2^{(29-24)} = 2^5 = 32\)
+     - Number of hosts per subnet: \(2^{(32-29)} - 2 = 2^3 - 2 = 8 - 2 = 6\) (subtracting 2 for network and broadcast addresses)
+
+4. **Subnet Ranges**:
+   - The subnets will be:
+     - 201.32.64.0 - 201.32.64.7
+     - 201.32.64.8 - 201.32.64.15
+     - 201.32.64.16 - 201.32.64.23
+     - ...
+     - 201.32.64.232 - 201.32.64.239
+     - 201.32.64.240 - 201.32.64.247
+     - 201.32.64.248 - 201.32.64.255
+
+5. **Broadcast Addresses**:
+   - For each subnet, the last address is the broadcast address. Let's check the given IP addresses:
+     - **201.32.64.135**: This falls in the range 201.32.64.128 - 201.32.64.135. It is the broadcast address for this subnet.
+     - **201.32.64.240**: This falls in the range 201.32.64.240 - 201.32.64.247. It is the network address for this subnet, not a broadcast address.
+     - **201.32.64.207**: This falls in the range 201.32.64.200 - 201.32.64.207. It is the broadcast address for this subnet.
+     - **201.32.64.231**: This falls in the range 201.32.64.224 - 201.32.64.231. It is the broadcast address for this subnet.
+
+### Conclusion:
+- The IP address **201.32.64.240** is **not** a valid broadcast address for any subnetwork. It is actually a network address.
+

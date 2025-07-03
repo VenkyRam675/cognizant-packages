@@ -1,0 +1,1251 @@
+1.Booting Process of a Linux System:
+
+1.BIOS
+BIOS stands for Basic Input/Output System
+Performs some system integrity checks
+Searches, loads, and executes the boot loader program.
+It looks for boot loader in floppy, cd-rom, or hard drive. You can press a key (typically F12 of F2, but it depends on your system)
+during the BIOS startup to change the boot sequence.
+Once the boot loader program is detected and loaded into the memory, BIOS gives the control to it.
+So, in simple terms BIOS loads and executes the MBR boot loader.
+
+2. MBR
+MBR stands for Master Boot Record.
+It is located in the 1st sector of the bootable disk. Typically /dev/hda, or /dev/sda
+MBR is less than 512 bytes in size. This has three components 
+1) primary boot loader info in 1st 446 bytes
+2) partition table info in next 64 bytes 
+3) mbr validation check in last 2 bytes.
+It contains information about GRUB (or LILO in old systems).
+So, in simple terms MBR loads and executes the GRUB boot loader.
+
+3. GRUB
+GRUB stands for Grand Unified Bootloader.
+If you have multiple kernel images installed on your system, you can choose which one to be executed.
+GRUB displays a splash screen, waits for few seconds, if you don’t enter anything, it loads the default kernel image as specified 
+in the grub configuration file.
+GRUB has the knowledge of the filesystem (the older Linux loader LILO didn’t understand filesystem).
+Grub configuration file is /boot/grub/grub.conf (/etc/grub.conf is a link to this). The following is sample grub.conf of CentOS.
+#boot=/dev/sda
+default=0
+timeout=5
+splashimage=(hd0,0)/boot/grub/splash.xpm.gz
+hiddenmenu
+title CentOS (2.6.18-194.el5PAE)
+          root (hd0,0)
+          kernel /boot/vmlinuz-2.6.18-194.el5PAE ro root=LABEL=/
+          initrd /boot/initrd-2.6.18-194.el5PAE.img
+As you notice from the above info, it contains kernel and initrd image.
+So, in simple terms GRUB just loads and executes Kernel and initrd images.
+
+4. Kernel
+Mounts the root file system as specified in the “root=” in grub.conf
+Kernel executes the /sbin/init program
+Since init was the 1st program to be executed by Linux Kernel, it has the process id (PID) of 1. Do a ‘ps -ef | grep init’ and
+check the pid. initrd stands for Initial RAM Disk.
+initrd is used by kernel as temporary root file system until kernel is booted and the real root file system is mounted. 
+It also contains necessary drivers compiled inside, which helps it to access the hard drive partitions, and other hardware.
+
+Kernel is a software, Kernels are sets of instructions and programs that tell the hardware like CPU, RAM what to do. 
+They manage system resources like CPU, memory, and input/output devices. 
+
+5. Init
+Looks at the /etc/inittab file to decide the Linux run level.
+Following are the available run levels
+0 – halt
+1 – Single user mode
+2 – Multiuser, without NFS
+3 – Full multiuser mode
+4 – unused
+5 – X11
+6 – reboot
+Init identifies the default initlevel from /etc/inittab and uses that to load all appropriate program.
+Execute ‘grep initdefault /etc/inittab’ on your system to identify the default run level
+If you want to get into trouble, you can set the default run level to 0 or 6. Since you know what 0 and 6 means, probably you might not do that.
+Typically you would set the default run level to either 3 or 5.
+
+6. Runlevel programs
+When the Linux system is booting up, you might see various services getting started. For example, it might say “starting sendmail …. OK”. Those are the runlevel programs, 
+executed from the run level directory as defined by your run level.
+Depending on your default init level setting, the system will execute the programs from one of the following directories.
+Run level 0 – /etc/rc.d/rc0.d/
+Run level 1 – /etc/rc.d/rc1.d/
+Run level 2 – /etc/rc.d/rc2.d/
+Run level 3 – /etc/rc.d/rc3.d/
+Run level 4 – /etc/rc.d/rc4.d/
+Run level 5 – /etc/rc.d/rc5.d/
+Run level 6 – /etc/rc.d/rc6.d/
+Please note that there are also symbolic links available for these directory under /etc directly. So, /etc/rc0.d is linked to /etc/rc.d/rc0.d.
+Under the /etc/rc.d/rc*.d/ directories, you would see programs that start with S and K.
+Programs starts with S are used during startup. S for startup.
+Programs starts with K are used during shutdown. K for kill.
+There are numbers right next to S and K in the program names. Those are the sequence number in which the programs should be started or killed.
+For example, S12syslog is to start the syslog deamon, which has the sequence number of 12.
+S80sendmail is to start the sendmail daemon, which has the sequence number of 80. So, syslog program will be started before sendmail.
+
+2. Explain what happens when www.amazon.com is clicked?
+https://www.practicalnetworking.net/series/packet-traveling/packet-traveling/#:~:text=The%20Internet%20allows%20computers%20from,carry%20data%20across%20the%20Internet.
+
+While we’re using Amazon as an example, these steps apply to any website you visit!
+
+Step1 🚦 : When you type a URL like “amazon.com” into your browser, the first thing it needs to do is figure out where to send your request.
+Think of websites as having addresses, much like houses; they don’t just exist by name on the internet. 
+Each website has a unique IP address that points to its location.
+
+To find this address, your browser reaches out to a DNS server (Domain Name System), which acts like the internet’s phonebook.
+It looks up “amazon.com” and finds the corresponding IP address. 
+If your browser can’t find the address stored locally or in your Internet Service Provider’s cache, it will ask other DNS servers out there to 
+help resolve the address.
+This DNS lookup is the crucial first step in loading any webpage, whether it’s Amazon or any other site you visit.
+
+Now that your browser knows the IP address, it needs to connect to Amazon’s server (or any website you’re trying to visit). 
+This is done using something called TCP (Transmission Control Protocol), which is basically a reliable way for computers to chat with each other.
+
+Step2 🤝 : To establish this connection, your device and Amazon’s server go through a process called a three-way handshake.
+It’s like a quick greeting where they exchange three signals(SYN, SYN/ACK, ACK) back and forth to make sure they’re on the same page 
+and ready to communicate. 
+This handshake is really important because it sets up a reliable connection before any actual data starts flowing — no matter what website you’re accessing.
+
+Step3 🔐 : Since websites like Amazon use HTTPS (which is the secure version of HTTP), your browser has to set up something called an SSL/TLS handshake. 
+This process makes sure that the connection between your device and the website is encrypted and safe.
+First, your browser checks Amazon’s security certificate to confirm it’s legitimate and not a scam.
+Once everything checks out, an encrypted tunnel is created. This means that any data you share — like passwords or credit card information — 
+is protected from anyone trying to intercept it.
+These days, most websites use HTTPS, so this secure handshake happens almost every time you visit a site, especially if it’s an online store.
+
+Step4 📩 : Once your connection is all secure, your browser is set to send an HTTP request! 
+This is basically how your browser tells Amazon’s server (or any website’s server) what you want, whether it’s loading the homepage or searching for products.
+The browser sends what’s called a GET request, and it includes some extra details like cookies, user-agent info, and even your location. 
+This helps the server personalize your experience, making it feel just right for you!
+Think of it like placing an order for a webpage — you ask for what you want, and the server does its thing and sends it right back to you!
+
+Step5 💻 : When the server gets your request, it jumps into action to process it!
+For instance, Amazon’s servers gather everything they need to deliver the page you asked for:
+HTML: This is the backbone, the basic structure of the page.
+CSS: Here’s where the styling comes in — think colors, fonts, and layouts that make everything look good.
+JavaScript: This is what brings the page to life with interactive features like drop-down menus and search bars.
+Images and multimedia: And let’s not forget about the visuals — product photos, videos, and all the other media that make the site engaging! 
+This whole process happens for any website you visit, whether it’s Amazon, Google, or any other place on the web!
+
+Step6 📦 : Once the server has processed your request, it sends an HTTP response back to your browser, packed with all the data needed to display the page you asked for!
+This response includes everything: the HTML for structure, CSS for styling, JavaScript for interactivity, and any media files like images and videos.
+Then, your browser gets to work assembling the page. It starts by interpreting the HTML and applying the CSS to make everything look nice. 
+This whole process is pretty much the same for every website you visit!
+
+Step7 🏗️ : Now it’s time for your browser to really bring the webpage to life! It does this by building the DOM (Document Object Model), 
+which organizes all that HTML into a structured format.
+Next, the browser applies the CSS to make everything look visually appealing — this is where the colors, fonts, and layouts come into play! 
+It also runs JavaScript to add those cool interactive features, like search functions, animations, and personalized product suggestions that make your browsing experience so much better.
+While all this is happening, your browser might send out a few more requests to load images, fonts, or other external scripts. 
+Whether you’re on Amazon or any other website, this rendering step is where everything really comes together and you see the final product!
+
+Step8 🌐 : Once the rendering is all done, your browser shows you the fully-loaded webpage!
+ Now you can dive into Amazon’s homepage, search for products, or click through different categories — everything you need is right at your fingertips!
+
+Step9 ⚡️ : Your browser usually keeps some data, like images and scripts, saved in its cache.
+ This means that the next time you visit amazon.com (or any other site), it can load certain resources much faster!
+ 
+Cookies are small pieces of data that a web server sends to a user's browser. 
+They are also known as web cookies, browser cookies, or Internet cookies. The browser stores cookies for a predetermined amount of time or for the 
+length of a user's session on a website. They attach the relevant cookies to any future requests the user makes of the web server.
+
+3.Buffering and Caching
+Buffering is the process of preloading data into a reserved area of memory called buffer memory.
+Buffer memory is a temporary storage area in the main memory (RAM) that stores data transferring between two or more devices or 
+between an application and a device.
+Buffering compensates for the difference in transfer speeds between the sender and receiver of the data.
+Systems automatically create buffers in the RAM whenever there are varying transmission speeds between applications or 
+devices transferring data. The buffer accumulates the bytes of data received from the sender and serves it to the receiver when ready.
+
+Caching is the process of temporarily storing a copy of a given resource so that subsequent requests to the same resource are 
+processed faster.
+Cache memory is a fast, static random access memory (SRAM) that a computer chip can access more efficiently than the standard 
+dynamic random access memory (DRAM). It can exist in either RAM or a hard disk.
+Caching in RAM is referred to as memory caching, while caching in a hard disk is referred to as disk caching.
+Disk caching is advantageous because cached data in the hard disk isn’t lost if the system crashes. 
+However, data access in disk caching is slower in comparison to memory caching.
+
+4.Virtual Memory:
+Virtual memory is a memory management system in Linux that allows a system to use disk space as additional RAM. 
+This lets the system handle larger workloads even when there isn't enough physical memory.
+
+Page Table is a data structure used by the virtual memory system to store the mapping between logical addresses and physical addresses.
+Logical addresses are generated by the CPU for the pages of the processes therefore they are generally used by the processes.
+Physical addresses are the actual frame address of the memory. They are generally used by the hardware or more specifically by RAM subsystems.
+
+Memory space(RAM) fixed blocks known as Frames.
+Processes fixed blocks known as Pages.
+ 
+Paging:
+A memory management technique that stores and retrieves data from secondary storage to the main memory. 
+Paging is more adaptable than swapping because it allows for the relocation of process pages. 
+Paging is the procedure of memory allocation where different non-contiguous blocks of memory are assigned a fixed size.
+
+Demand paging:
+A process that moves data from secondary storage to RAM only when a process demands it. This is also known as lazy loading. 
+
+Swapping:
+A technique that temporarily removes inactive applications from the main memory to make room for more processes. 
+Swapping is less flexible than paging because the entire operation goes back and forth between the main memory and the secondary storage.  
+
+Swapping which moves entire program in and out, Paging only moves pages, which are relatively small.
+Paging only the pages moves into the main memory but in Swapping the entire process will be swap in and out to allocate for another process.
+
+Page fault: We know every program is divided into some pages. A page fault occurs when a program attempts to access data or code in its 
+address space but is not currently located in the system RAM.
+
+Swapping: Whenever a page fault happens, the operating system will try to fetch that page from secondary memory and try to swap
+it with one of the pages in RAM. This process is called swapping.
+
+Thrashing:
+Thrashing is when the page fault and swapping happens very frequently at a higher rate, and then the operating system has to 
+spend more time swapping these pages. This state in the operating system is known as thrashing.
+
+Fragmentation:
+Fragmentation is a condition in which memory or storage space is allocated but not used efficiently. 
+
+Internal fragmentation:
+Internal fragmentation occurs when the memory is distributed into fixed-sized blocks. If the memory allocated to the process is slightly larger 
+than the memory demanded, then the difference between allocated and demanded memory is known as internal fragmentation.
+Occurs due to Paging.
+
+External fragmentation:
+External fragmentation is the unused space that is left between the fragments of non-contiguous memory. 
+These unused spaces are too small to help a new process. 
+The total memory space is enough to satisfy a request or to reside a process in it, but it is not contiguous, so it cannot be used.
+Eliminates using paging.
+
+In paging, internal fragmentation occurs when the last page of a process is not fully utilized. 
+External fragmentation, common in contiguous memory allocation, is avoided in paging since pages can be placed in any available frame.
+
+5.Deadlock:
+A Deadlock is a situation where each of the computer process waits for a resource which is being assigned to some another process.
+In this situation, none of the process gets executed since the resource it needs, 
+is held by some other process which is also waiting for some other resource to be released. 
+
+Necessary conditions for Deadlocks:
+Mutual Exclusion
+A resource can only be shared in mutually exclusive manner. It implies, if two process cannot use the same resource at the same time.
+
+Hold and Wait
+A process waits for some resources while holding another resource at the same time.
+
+No preemption
+The process which once scheduled will be executed till the completion. No other process can be scheduled by the scheduler meanwhile.
+
+Circular Wait
+All the processes must be waiting for the resources in a cyclic manner so that the last process is waiting for the resource
+which is being held by the first process.
+
+5.FILE SYSTEMS:
+The Linux file system is a method of organizing and managing files on a Linux-based operating system. It defines how to store, access, and retrieve data on the disk. 
+Files are arranged in a hierarchical directory tree starting with the root directory (/), which branches into subdirectories and files.
+
+Mounting
+Linux allows users to mount different file systems into a single unified directory structure. 
+Users can mount devices, partitions, and network shares at any point in the directory tree. 
+Such a system provides flexibility in organizing and accessing storage.
+
+Inodes
+An inode is a data structure that stores file metadata, including permissions, ownership, and timestamps.
+Each file and directory is associated with an inode, which helps the system manage file information efficiently.
+
+Snapshots and Backups
+Advanced file systems like Btrfs and ZFS support snapshots, which create point-in-time file system copies. 
+These snapshots serve as backups, data recovery, and version control without affecting system performance.
+
+Scalability
+File systems like XFS and ZFS easily handle large volumes and files, making them suitable for environments with massive storage needs. 
+They support high scalability, ensuring performance remains stable as the file system grows.
+
+Compression and Deduplication
+Btrfs and ZFS offer built-in compression and deduplication features. They allow more efficient storage space use by reducing redundancy and compressing data on the fly.
+
+Types of Filesystems:
+
+ext4:
+The ext4 (extended file system 4) is the successor to the ext3 file system and was designed to address some of the limitations of ext3. 
+It supports larger file sizes, faster file system checks, and better performance on large disks. It also includes journal checksumming,
+which improves data integrity. The ext4 file system is the default file system used by many modern Linux distributions.
+
+XFS:
+The XFS(X File System) is a high-performance file system designed for large-scale storage systems. It supports file systems up to 16 exabytes in size,
+making it suitable for use in large data centers.The XFS file system is known for its scalability, performance, and reliability. 
+It supports advanced features such as journaling, file-level encryption, and online defragmentation.
+
+Btrfs:
+The Btrfs (B-tree file system) is a modern file system designed for use on Linux systems. (snapshots)
+It supports features such as copy-on-write, snapshots, and subvolumes, which allow users to create separate file systems within a single partition.
+It also includes built-in support for RAID and compression. Btrfs is still under active development and is not yet as widely used as some of the other file systems.
+
+ZFS:
+The ZFS (Zettabyte File System) is a powerful and feature-rich file system that was originally developed for Solaris. 
+It supports advanced features such as snapshots, data compression, deduplication, and built-in RAID. 
+ZFS is known for its reliability and DATA INTEGRITY features, including checksumming and self-healing capabilities. It is not included in most Linux distributions by default due to licensing issues but can be installed separately.
+
+JFS:
+The JFS(Journaled File System) is a high-performance file system that was originally developed by IBM.
+It includes advanced features such as journaling, file-level compression, and online resizing. 
+The JFS file system is known for its speed and reliability and is a good choice for high-performance computing systems.
+
+/ (root filesystem): It is the top-level filesystem directory. It must include every file needed to boot the Linux system before another 
+filesystem is mounted. Every other filesystem is mounted on a well-defined and standard mount point because of the root filesystem directories 
+after the system is started.
+
+/boot: It includes the static kernel and bootloader configuration and executable files needed to start a Linux computer.
+
+/bin: This directory includes user executable files.
+
+/dev: It includes the device file for all hardware devices connected to the system. These aren't device drivers; instead, 
+they are files that indicate all devices on the system and provide access to these devices.
+
+/etc: It includes the local system configuration files for the host system.
+
+/lib: It includes shared library files that are needed to start the system.
+
+/home: The home directory storage is available for user files. All users have a subdirectory inside /home.
+
+/mnt: It is a temporary mount point for basic filesystems that can be used at the time when the administrator is working or repairing a filesystem.
+
+/media: A place for mounting external removable media devices like USB thumb drives that might be linked to the host.
+
+/opt: It contains optional files like vendor supplied application programs that must be placed here.
+
+/root: It's the home directory for a root user. Keep in mind that it's not the '/' (root) file system.
+
+/tmp: It is a temporary directory used by the OS and several programs for storing temporary files. Also, users may temporarily store files here.
+Remember that files may be removed without prior notice at any time in this directory.
+
+/sbin: These are system binary files. They are executables utilized for system administration.
+
+/usr: They are read-only and shareable files, including executable libraries and binaries, man files, and several documentation types.
+
+/var: Here, variable data files are saved. It can contain things such as MySQL, log files, other database files, email inboxes, web server data files, and much more.
+
+6.PROCESS MANAGEMENT:
+It involves controlling and monitoring the processes running on a Linux system, including managing process resources, scheduling 
+processes to run on the CPU, and terminating processes when necessary.
+A process is an instance of a program currently running on a computer system. In Linux, processes are managed by the operating system's
+kernel, which allocates system resources and schedules processes to run on the CPU. 
+
+Foreground processes: 
+Such kind of processes are also known as interactive processes. 
+These are the processes which are to be executed or initiated by the user or the programmer, they can not be initialized by system services. 
+Such processes take input from the user and return the output.
+While these processes are running we can not directly initiate a new process from the same terminal.
+
+Background processes: 
+Such kind of processes are also known as non interactive processes. 
+These are the processes that are to be executed or initiated by the system itself or by users, though they can even be managed by users. 
+These processes have a unique PID or process if assigned to them and we can initiate other processes within the same terminal from 
+which they are initiated.
+
+
+The Linux Process States
+In Linux, a process is an instance of executing a program or command. While these processes exist, they’ll be in one of the five 
+possible states:
+
+Running or Runnable (R)
+Uninterruptible Sleep (D)
+Interruptable Sleep (S)
+Stopped (T)
+Zombie (Z)
+
+Running or Runnable State (R):
+When a new process is started, it’ll be placed into the running or runnable state. In the running state, the process takes up a CPU core
+to execute its code and logic. However, the thread scheduling algorithm might force a running process to give up its execution right. 
+This is to ensure each process can have a fair share of CPU resources. In this case, the process will be placed into a run queue, 
+and its state is now a runnable state waiting for its turn to execute.
+Although the running and runnable states are distinct, they are collectively grouped into a single state denoted by the character R.
+
+Sleeping State: Interruptible (S) and Uninterruptible (D)
+During process execution, it might come across a portion of its code where it needs to request external resources. 
+Mainly, the request for these resources is IO-based such as to read a file from disk or make a network request. 
+Since the process couldn’t proceed without the resources, it would stall and do nothing. In events like these, 
+they should give up their CPU cycles to other tasks that are ready to run, and hence they go into a sleeping state.
+
+There are two different sleeping states: 
+Uninterruptible sleeping state (D):
+Waits for the resources to be available before it moves into a runnable state and doesn’t react to any signals.
+
+Let’s imagine a process that reads data from a network-mounted storage system, like an NFS (Network File System) or a SAN (Storage Area Network). 
+If the network is slow or experiencing issues, the read operation might take significant time. During this time, the process is effectively blocked, 
+waiting for the network read operation to complete. It enters the D state. The process cannot be interrupted or killed in this state because 
+it’s waiting on a hardware condition (in this case, the network response). This is essential to ensure data integrity and consistency. 
+Once the network I/O operation completes (either successfully or with an error), the process will move out of the D state and continue its execution
+or handle any errors that occurred.
+
+Interruptible sleeping state (S):
+That will react to signals and the availability of resources. A process enters the S state, or Interruptible Sleep, when it waits for an event or 
+condition that is not directly related to an I/O operation.
+
+For example, when a process waits for user input, let us consider a command-line application running in a terminal, like a text editor or a shell. 
+When this application waits for the user to type a command or input text, it doesn’t need to use the CPU. To efficiently manage system resources, 
+the process goes into the S (Interruptible Sleep) state while it waits. In this state, the process is not executing any code; 
+instead, it’s waiting for an event (in this case, user input) to occur. Since it’s in Interruptible Sleep, the process can be woken up by signals, 
+like a signal indicating that the user has pressed a key. Once the user provides input, the process wakes up, moves back into the R (Running) state, 
+processes the input, and continues its operation.
+
+Stopped State (T)
+From a running or runnable state, we could put a process into the stopped state (T) using the SIGSTOP or SIGTSTP signals. 
+The difference between both signals is that we send the SIGSTOP is programmatic, such as running kill -STOP {pid}. Additionally, the process 
+cannot ignore this signal and will go into the stopped state. 
+On the other hand, we send the SIGTSTP signal using the keyboard CTRL + Z. Unlike SIGSTOP, the process can optionally ignore this signal and 
+continue to execute upon receiving SIGTSTP.
+
+While in this state, we could bring back the process into a running or runnable state by sending the SIGCONT signal.
+
+Zombie State (Z)
+When a process has completed its execution or is terminated, it’ll send the SIGCHLD signal to the parent process and go into the zombie state. 
+The zombie process, also known as a defunct process, will remain in this state until the parent process clears it off from the process table. 
+To clear the terminated child process off the process table, the parent process must read the exit value of the child process using the 
+wait() or waitpid() system calls.
+
+Checking Process State:
+There are multiple ways to check the state of a process is in Linux. 
+For example, we can use command-line tools like ps and top to check the state of processes. 
+Alternatively, we can consult the pseudo status file for a particular PID.
+
+7.KERNELS
+Kernel is the main part of an Operating System. It is the first program that is loaded after the boot loader whenever we start a system. 
+The Kernel is present in the memory until the Operating System is shut-down.
+
+What is a Monolithic Kernel?
+Kernel provides an interface between the user and the hardware components of the system. 
+Whenever a process makes a request to the Kernel, then it is called System Call.
+
+A monolithic kernel is an operating system kernel in which all the operating system services run in kernel space, meaning they all share the same memory space.
+Monolithic Kernel is another classification of Kernel. Like microkernel, this one also manages system resources between application and hardware, 
+but user and kernel services are implemented under the same address space. It increases the size of the kernel, 
+thus increasing the size of the operating system as well.  This kernel provides CPU scheduling, memory management, file management, 
+and other operating system functions through system calls. As both services are implemented under the same address space, the operating system execution is faster. 
+
+What is Microkernel?
+A microkernel is a type of operating system kernel in which only the most basic services run in kernel space, with other services running in user space. 
+This type of kernel is characterized by its modularity, simplicity, and ability to run multiple operating systems on the same hardware. 
+
+The microkernel itself typically includes only the most fundamental services, such as:
+Inter-process Communication (IPC): Mechanisms for processes to communicate and synchronize with each other.
+Basic Scheduling: Managing the execution of processes.
+Minimal Memory Management: Essential functions for memory allocation and protection.
+
+Other functionalities that are often part of a monolithic kernel, like device drivers, file systems, and network protocols,
+are implemented in user space as separate processes. This contrasts with a monolithic kernel, where all these services run in kernel space.
+
+In an operating system, there are two main areas where code runs: user space and kernel space. 
+USER SPACE is where user applications run, while KERNEL SPACE is where the operating system and other important parts run. 
+In kernel space, code can directly access system resources like memory and hardware, allowing it to perform special tasks that user space code can’t.
+
+8.THREADS:
+The process of switching between two executing processes on the CPU is called process Context Switching.
+Process context switching is expensive because the kernel has to save old registers and load current registers, memory maps, and other resources.
+
+A Thread is a unit of execution that can run independently within a process. Threads are often called "lightweight processes" (LWPs).
+Purpose:
+Threads are used to speed up processes by increasing parallelism and allowing for concurrent execution of tasks. 
+They can also help ensure that a process doesn't block other processes or threads. 
+
+Implementation:
+Linux implements threads differently than other operating systems, such as Microsoft Windows or Sun Solaris. 
+The Linux kernel doesn't provide special scheduling semantics or data structures for threads. Instead, Linux 
+treats threads as standard processes that share resources with other processes. 
+
+Use cases:
+Threads are well-suited for tasks that require concurrent execution, such as web servers, GUI programming, and database systems. 
+
+Let’s see an example and identify the process and its thread in Linux using the ps -eLf command. We’re interested in PID, LWP, and NLWP attributes:
+
+PID: Unique process identifier
+LWP: Unique thread identifier inside a process
+NLWP: Number of threads for a given process
+
+We can see that single-threaded processes have the same PID and LWP values as if they are the same thing. However, in a multi-threaded process,
+only one LWP matches its PID, and the others have different values of LWP. Also, note that the value, once assigned to an LWP, is never given to another process.
+
+Single-Threaded Process:
+Any thread created within the process shares the same memory and resources of the process. In a single-threaded process, the process and thread are the same, 
+as there’s only one thing happening. We can also validate ps -eLf output from our previous discussion that PID and LWP are the same for the single-threaded process.
+
+Multi-Threaded Process
+In a multi-threaded process, the process has more than one thread. Such a process accomplishes multiple tasks simultaneously or almost at the same time.
+As we know, the thread shares the same address space of the process. Therefore, spawning a new thread within a process becomes cheap
+(in terms of the system resources) compared to starting a new process. Threads also can switch faster (since they have shared address space
+with the process) compared to the processes in the CPU. Internally, the thread has only a stack in the memory, and they share the heap (process memory) with the parent process.
+
+There are both benefits and drawbacks of sharing the same memory with other threads.
+The most important benefit is that we can create threads faster than processes since we don’t have to allocate memory and resources. 
+The other benefit is the low cost of inter-thread communication.
+
+9. What is Round Robin Scheduling in OS?
+The Round robin scheduling algorithm is one of the CPU scheduling algorithms in which every process gets a fixed amount of time quantum 
+to execute the process.
+In this algorithm, every process gets executed cyclically. This means that processes that have their burst time remaining after 
+the expiration of the time quantum are sent back to the ready state and wait for their next turn to complete the execution until it 
+terminates. This processing is done in FIFO order which suggests that processes are executed on a first-come, first-serve basis.
+
+Note: The CPU time quantum :is the time period defined in the system.
+Burst Time: It is the amount of CPU time the process requires to complete its execution.
+
+How does the Round Robin Algorithm Work?
+1. All the processes are added to the ready queue.
+2. At first, The burst time of every process is compared to the time quantum of the CPU.
+3. If the burst time of the process is less than or equal to the time quantum in the round-robin scheduling algorithm, 
+the process is executed to its burst time.
+4. If the burst time of the process is greater than the time quantum, the process is executed up to the time quantum (TQ).
+5. When the time quantum expires, it checks if the process is executed completely or not.
+6. On completion, the process terminates. Otherwise, it goes back again to the ready state.
+
+
+Hosts:
+Any device which sends or receive traffic (clients or servers).
+IP Address:
+It is the dentity of each host.
+Network:
+It is what transports traffic between hosts.
+Hosts on a Network share the same IP Address Space(ex:192.150.2.xx)
+
+Switches:
+It is a device facilitates communication within a network(Grouping of hosts which require similar connectivity)
+
+Routers:
+It Facilitates communication between multiple networks.
+
+10. What is MTU in Networking?
+MTU stands for Maximum Transmission Unit. It is the maximum size of an IP packet that can be sent over a link.
+
+When we talk about MTU value, it’s the maximum size under which a packet can be sent. For example, when we talk about Ethernet, 
+it is 1500, and for PPP, it is 1492. Most of the time, the sender node sets the MTU value. 
+Value is set in a way that can match the capacity of the host node in the network to send or receive single packets at a given time. 
+
+The optimal value of MTU depends on various factors, some of which are bandwidth, reliability, and the error rate of the network link.
+
+what will happen if the packet exceeds the MTU value?
+In such a case, the packet is broken into smaller pieces, also known as fragments, either by the sender or any intermediate device. 
+Each fragment has its own header that contains information about the original packet. The fragments are then reassembled at the receiver end.
+
+There are some drawbacks to breaking down the packet into small fragments. One of many is it can reduce network efficiency. 
+It can also cause errors or loss of data if, by chance, the fragments get lost or corrupted during the transmission process.
+
+The formula for calculating MTU is MTU = MSS + 40 (IP header + TCP header)
+
+What is MSS in Networking?
+MSS, or maximum segment size, is the largest amount of data or packet that can be sent from source to destination in a single TCP segment. 
+It is one of the important factors that can impact the TCP performance. A TCP segment is nothing but a unit of data that is being transmitted 
+over a TCP connection. It consists of two parts, namely, header and payload. The header contains information about the source and destination 
+port numbers, ack numbers, and many other crucial information. At the same time, the payload contains the actual data that is to be transmitted.
+
+MSS can be negotiated while TCP handshake. In this process, each host sends its own MSS value with a SYN message in an option field. 
+Here, the MSS value represents the maximum size of data that the host can accept in a single TCP segment. It does not include a TCP header. 
+The final MSS value is decided based on the minimum two values exchanged by the hosts.
+
+In a case where the TCP segment is higher than the MSS value, it cannot be transmitted. It will be discarded, and requests for the retrains mission of 
+the data with a smaller size. As a result, this will reduce the efficiency of data transmission.
+
+The optimal value of MSS depends on several factors, such as the MTU of the network path, the TCP options used, and the application requirements.
+
+The formula for calculating MSS is: MSS = MTU – 40 (IP header + TCP header)
+
+Is MTU the same as MSS?
+MTU is the maximum size of a packet, including headers. MSS is the maximum size of the data part only. They are related but not the same.
+
+Q2 – Can MSS be greater than MTU?
+MSS is less than MTU as it does not include TCP/IP header data.
+
+Q3 – What is the TCP MSS for 1500 MTU?
+TCP MSS for 1500 MTU is 1460 bytes, as the TCP header and IP header are 20 bytes each.
+
+Fragmentation: It is the process of breaking a packet into smaller pieces so that it can pass through a network.
+Fragmentation is allowed by MTU. If a packet is larger than the MTU, it is split up into smaller parts.	
+MSS prohibits fragmentation. A packet is discarded and not delivered if it exceeds the MSS.
+
+OSI(Open Systems Interconnection) Model:
+Each layer has package of protocols.
+OSI model defines how data is transferred in a computer network.
+1. The OSI Model's Application Layer provides network services via protocols for various user activities.
+2. Session Layer manages connections, authentication, and authorization.
+3. Transport layer controls data reliability and transmission speed.
+4. Transport layer uses TCP for connection oriented transmission and UDP for connectionless transmission.
+5. Path determination is crucial for data delivery in a computer network.
+6. Data link layer provides access to media and controls data transfer.
+7. Physical Layer controls data transmission.
+
+In the encapsulation process, a source computer sends a packet from Layer 7, the application layer, to Layer 1, the physical layer. 
+Data encapsulation doesn't begin until a packet reaches Layer 4, the transport layer.
+
+Encapsulation is the process of adding information to a packet as it travels through the OSI model. 
+The information is added by each layer of the model, starting with the application layer and working down to the physical layer. 
+The information added to the packet enables it to travel through the system.
+
+The reverse process, called decapsulation, happens as the packet travels back to the receiving computer. 
+During decapsulation, the headers and trailers are removed from the packet as it moves through the OSI model, from Layer 1 to Layer 7.
+
+1.Application Layer:
+Network Applications(Computer applications that use internet) will use this layer like web browsers, emails, virtual terminals
+An application layer allows a user to access the files in a remote computer, to retrieve the files from a computer and to manage the files in a remote computer.
+Protocols used in this layer are: FTP for file transfers, HTTP and HTTPS for web surfing, SMTP for Mails, Telnet for virtual terminals.
+
+2.Presentation Layer:
+This layer recieves data from application layer this data is in the form of characters and numericals,if data is encrypted then SSL will be used to decrypt 
+the data then the data will be compressed to reduce the size of data for easy transmission. Now presentation layer will convert this data into computer readable 
+language which is 1's and 0's(binary format).
+So,in this layer Translation, Data Compression and Encryption/Decryption will occurs.
+
+3.Session Layer:
+This layer responsible for Authentication, Authorization and Session Management.
+Session Layer in the OSI Model is responsible for the establishment of connections, management of connections, terminations of 
+sessions between two devices.
+It also provides authentication and security. Protocols used in the Session Layer are NetBIOS, PPTP.
+
+4. Transport Layer:
+It controls the reliability of communication through Segmentation, Flow Control and Error Control.
+The data received will be divided into small data units called Segments where each segment has Source, dest, data, port(to which application does the data should go), 
+sequence(to reassemble the data) also Checksum().
+Flow control: The amount of data to be transmitted from the server to reach a destination on what speed because each hosts will have different speed 
+capability to recieve the data.
+Error Control: If any packet does not reach the destination it uses Automatic Repeat Requests to request the server for missing data. Checksum will be used here.
+TCP and UDP are the protocols will be used for this layer.
+
+5.Network Layer:
+This layer responsible for Logical Addressing, Routing, Path Determination.
+Routing: We will route the data packet to the routers to receive at the co
+Logical Addressing: Where we will attach the sender and receiver address to the segment as headers to form a data packet.
+
+6.Data Link Layer:
+In this layer frames will be formed in which the MAC address will be added into the IP packet received from the Network Layer.
+It per
+
+7.Physical Layer:
+The physical layer refers to the physical communication medium and the technologies to transmit data across that medium. 
+At its core, data communication is the transfer of digital and electronic signals through various physical channels like fiber-optic cables, copper cabling, and air. 
+The physical layer includes standards for technologies and metrics closely related with the channels, such as Bluetooth, NFC, and data transmission speeds.
+
+Difference between Segments, Packets and Frames?
+What is Segment?
+The data from the application layer is broken into smaller parts as per the MSS of the network and the TCP header is added to the smaller parts. 
+The size of the header can vary from 20B to 60 B. But usually, the header is of size 20B(the rest of 40B are optional) 
+The header of TCP includes the following :
+1. Source Port
+2. Destination Port
+3. Flag bits (like DF, MF, etc)
+4. Sequence Number of the Segments
+5. Checksum
+6. Options Field 
+Source and Destination port are required because it tells in which PDU is to be delivered in the receiver host. 
+The checksum field of the TCP is calculated by taking into account the TCP header, data and IP pseudo-header. 
+The Checksum ensures that correct data is sent and received. Thus, after all these processing the broken data packets are called Segments. 
+
+What is Packets?
+The segments received from the Transport layer are further processed to form the Packets. The IP packet has a header of varying sizes from 20B to 60B. 
+But usually, it is 20B. The IP header has many fields include the following :
+1. Source IP Address
+2. Destination IP Address
+3. TTL(time to live)
+4. Identification
+5. Protocol type 
+6. Version (version of protocol)
+7. Options 
+Now let’s understand the concept, the IP body contains the Segment received from the Transport Layer without any of the modifications. 
+To the IP body, the IP header is added which has the fields as mentioned above. The IP headers are continuously modified as the packets in the networks because 
+TTL keeps on changing with each hop. Thus the IP header along with the body (which contains the segment from the Transport layer) makes the IP Packet 
+or popularly only Packet. This layer is also responsible for fragmentation if required when MTU of the network is less . This fragmentation is done at the Routers. 
+
+What is Frames?
+The Packets received from the Network Layer further processed to form the Frames. Here is the Data link layer the header is added, the header consists 
+of the fields that are mentioned below :
+1. Source Mac Address
+2. Destination Mac Address
+3. Data
+4. Length
+5. Checksum (CRC) 
+The source MAC address is resolved by using the ARP(Address Resolution Protocol). The Source and Destination MAC address would keep on modifying 
+as the Frame moves in the network. The Modification of the MAC address is done by the Routers. Data is the segment that is received from the network layer. 
+The length is the total MTU(maximum transferable unit) of the network. All concepts will be clear with the diagram given below.
+
+What is Network Topology?
+Topology defines the structure of the network of how all the components are interconnected to each other. 
+There are two types of topology: physical and logical topology.
+
+Types of Network Topology
+Physical topology is the geometric representation of all the nodes in a network. 
+There are six types of network topology which are Bus Topology, Ring Topology, Tree Topology, Star Topology, Mesh Topology, and Hybrid Topology.
+
+1) Bus Topology
+The bus topology is designed in such a way that all the stations are connected through a single cable known as a backbone cable.
+Each node is either connected to the backbone cable by drop cable or directly connected to the backbone cable.
+When a node wants to send a message over the network, it puts a message over the network. 
+All the stations available in the network will receive the message whether it has been addressed or not.
+The bus topology is mainly used in 802.3 (ethernet) and 802.4 standard networks.
+The configuration of a bus topology is quite simpler as compared to other topologies.
+The backbone cable is considered as a "single lane" through which the message is broadcast to all the stations.
+
+The most common access method of the bus topologies is CSMA (Carrier Sense Multiple Access).
+CSMA: It is a media access control used to control the data flow so that data integrity is maintained, i.e., the packets do not get lost. 
+There are two alternative ways of handling the problems that occur when two nodes send the messages simultaneously.
+CSMA CD: CSMA CD (Collision detection) is an access method used to detect the collision. Once the collision is detected, the sender will stop transmitting the data. 
+Therefore, it works on "recovery after the collision".
+CSMA CA: CSMA CA (Collision Avoidance) is an access method used to avoid the collision by checking whether the transmission media is busy or not. 
+If busy, then the sender waits until the media becomes idle. This technique effectively reduces the possibility of the collision. 
+It does not work on "recovery after the collision".
+
+Advantages of Bus topology:
+Low-cost cable: In bus topology, nodes are directly connected to the cable without passing through a hub. Therefore, the initial cost of installation is low.
+Moderate data speeds: Coaxial or twisted pair cables are mainly used in bus-based networks that support upto 10 Mbps.
+Familiar technology: Bus topology is a familiar technology as the installation and troubleshooting techniques are well known, and hardware components are easily available.
+Limited failure: A failure in one node will not have any effect on other nodes.
+
+Disadvantages of Bus topology:
+Extensive cabling: A bus topology is quite simpler, but still it requires a lot of cabling.
+Difficult troubleshooting: It requires specialized test equipment to determine the cable faults. If any fault occurs in the cable, 
+then it would disrupt the communication for all the nodes.
+Signal interference: If two nodes send the messages simultaneously, then the signals of both the nodes collide with each other.
+Reconfiguration difficult: Adding new devices to the network would slow down the network.
+Attenuation: Attenuation is a loss of signal leads to communication issues. Repeaters are used to regenerate the signal.
+
+2) Ring Topology:
+Ring topology is like a bus topology, but with connected ends.
+The node that receives the message from the previous computer will retransmit to the next node.
+The data flows in one direction, i.e., it is unidirectional.
+The data flows in a single loop continuously known as an endless loop.
+It has no terminated ends, i.e., each node is connected to other node and having no termination point.
+The data in a ring topology flow in a clockwise direction.
+
+The most common access method of the ring topology is token passing.
+Token passing: It is a network access method in which token is passed from one node to another node.
+Token: It is a frame that circulates around the network.
+Working of Token passing
+A token moves around the network, and it is passed from computer to computer until it reaches the destination.
+The sender modifies the token by putting the address along with the data.
+The data is passed from one device to another device until the destination address matches. Once the token received by the destination device, 
+then it sends the acknowledgment to the sender. In a ring topology, a token is used as a carrier.
+
+Advantages of Ring topology:
+Network Management: Faulty devices can be removed from the network without bringing the network down.
+Product availability: Many hardware and software tools for network operation and monitoring are available.
+Cost: Twisted pair cabling is inexpensive and easily available. Therefore, the installation cost is very low.
+Reliable: It is a more reliable network because the communication system is not dependent on the single host computer.
+
+Disadvantages of Ring topology:
+Difficult troubleshooting: It requires specialized test equipment to determine the cable faults. If any fault occurs in the cable, 
+then it would disrupt the communication for all the nodes.
+Failure: The breakdown in one station leads to the failure of the overall network.
+Reconfiguration difficult: Adding new devices to the network would slow down the network.
+Delay: Communication delay is directly proportional to the number of nodes. Adding new devices increases the communication delay.
+
+3) Star Topology:
+Star topology is an arrangement of the network in which every node is connected to the central hub, switch or a central computer.
+The central computer is known as a server, and the peripheral devices attached to the server are known as clients.
+Coaxial cable or RJ-45 cables are used to connect the computers.
+Hubs or Switches are mainly used as connection devices in a physical star topology.
+Star topology is the most popular topology in network implementation.
+
+Advantages of Star topology:
+Efficient troubleshooting: Troubleshooting is quite efficient in a star topology as compared to bus topology. In a bus topology, 
+the manager has to inspect the kilometers of cable. In a star topology, all the stations are connected to the centralized network. 
+Therefore, the network administrator has to go to the single station to troubleshoot the problem.
+Network control: Complex network control features can be easily implemented in the star topology. Any changes made in the star topology are 
+automatically accommodated.
+Limited failure: As each station is connected to the central hub with its own cable, therefore failure in one cable will not affect the entire network.
+Familiar technology: Star topology is a familiar technology as its tools are cost-effective.
+Easily expandable: It is easily expandable as new stations can be added to the open ports on the hub.
+Cost effective: Star topology networks are cost-effective as it uses inexpensive coaxial cable.
+High data speeds: It supports a bandwidth of approx 100Mbps. Ethernet 100BaseT is one of the most popular Star topology networks.
+
+Disadvantages of Star topology:
+A Central point of failure: If the central hub or switch goes down, then all the connected nodes will not be able to communicate with each other.
+Cable: Sometimes cable routing becomes difficult when a significant amount of routing is required.
+
+4) Tree topology:
+Tree topology combines the characteristics of bus topology and star topology.
+A tree topology is a type of structure in which all the computers are connected with each other in hierarchical fashion.
+The top-most node in tree topology is known as a root node, and all other nodes are the descendants of the root node.
+There is only one path exists between two nodes for the data transmission. Thus, it forms a parent-child hierarchy.
+
+Advantages of Tree topology
+Support for broadband transmission: Tree topology is mainly used to provide broadband transmission, i.e., signals are sent over long distances without 
+being attenuated.
+Easily expandable: We can add the new device to the existing network. Therefore, we can say that tree topology is easily expandable.
+Easily manageable: In tree topology, the whole network is divided into segments known as star networks which can be easily managed and maintained.
+Error detection: Error detection and error correction are very easy in a tree topology.
+Limited failure: The breakdown in one station does not affect the entire network.
+Point-to-point wiring: It has point-to-point wiring for individual segments.
+
+Disadvantages of Tree topology
+Difficult troubleshooting: If any fault occurs in the node, then it becomes difficult to troubleshoot the problem.
+High cost: Devices required for broadband transmission are very costly.
+Failure: A tree topology mainly relies on main bus cable and failure in main bus cable will damage the overall network.
+Reconfiguration difficult: If new devices are added, then it becomes difficult to reconfigure.
+
+5) Mesh topology:
+Mesh technology is an arrangement of the network in which computers are interconnected with each other through various redundant connections.
+There are multiple paths from one computer to another computer.
+It does not contain the switch, hub or any central computer which acts as a central point of communication.
+The Internet is an example of the mesh topology.
+Mesh topology is mainly used for WAN implementations where communication failures are a critical concern.
+Mesh topology is mainly used for wireless networks.
+Mesh topology can be formed by using the formula:
+Number of cables = (n*(n-1))/2;
+Where n is the number of nodes that represents the network.
+
+Mesh topology is divided into two categories:
+
+Fully connected mesh topology
+Partially connected mesh topology
+Computer Network Topologies
+Full Mesh Topology: In a full mesh topology, each computer is connected to all the computers available in the network.
+Partial Mesh Topology: In a partial mesh topology, not all but certain computers are connected to those computers with which they communicate frequently.
+
+Advantages of Mesh topology:
+Reliable: The mesh topology networks are very reliable as if any link breakdown will not affect the communication between connected computers.
+Fast Communication: Communication is very fast between the nodes.
+Easier Reconfiguration: Adding new devices would not disrupt the communication between other devices.
+
+Disadvantages of Mesh topology:
+Cost: A mesh topology contains a large number of connected devices such as a router and more transmission media than other topologies.
+Management: Mesh topology networks are very large and very difficult to maintain and manage. If the network is not monitored carefully, then the communication link failure goes undetected.
+Efficiency: In this topology, redundant connections are high that reduces the efficiency of the network.
+
+6) Hybrid Topology:
+The combination of various different topologies is known as Hybrid topology.
+A Hybrid topology is a connection between different links and nodes to transfer the data.
+When two or more different topologies are combined together is termed as Hybrid topology and if similar topologies are connected 
+with each other will not result in Hybrid topology. 
+For example, if there exist a ring topology in one branch of ICICI bank and bus topology in another branch of ICICI bank, 
+connecting these two topologies will result in Hybrid topology.
+
+Advantages of Hybrid Topology
+Reliable: If a fault occurs in any part of the network will not affect the functioning of the rest of the network.
+Scalable: Size of the network can be easily expanded by adding new devices without affecting the functionality of the existing network.
+Flexible: This topology is very flexible as it can be designed according to the requirements of the organization.
+Effective: Hybrid topology is very effective as it can be designed in such a way that the strength of the network is maximized and weakness of the network is minimized.
+
+Disadvantages of Hybrid topology
+Complex design: The major drawback of the Hybrid topology is the design of the Hybrid network. It is very difficult to design the architecture of the Hybrid network.
+Costly Hub: The Hubs used in the Hybrid topology are very expensive as these hubs are different from usual Hubs used in other topologies.
+Costly infrastructure: The infrastructure cost is very high as a hybrid network requires a lot of cabling, network devices, etc.
+
+What is a Subnet?
+A subnet is like a smaller group within a large network. It is a way to split a large network into smaller networks so that devices present in one network can 
+transmits data more easily. For example, in a company, different departments can each have their own subnet, keeping their data traffic separate from others. 
+Subnet makes the network faster and easier to manage and also improves the security of the network.
+
+Why Subnetting Necessary?
+Subnetting helps in organizing the network in an efficient way which helps in expanding the technology for large firms and companies.
+Subnetting is used for specific staffing structures to reduce traffic and maintain order and efficiency.
+Subnetting divides domains of the broadcast so that traffic is routed efficiently, which helps in improving network performance.
+Subnetting is used to increase network security.
+
+Different Parts of IP Address
+An IP address is made up of different parts, each serving a specific purpose in identifying a device on a network. 
+In an IPv4 address, there are four parts, called “octets,” which are separated by dots (e.g., 192.168.1.1). Here’s what each part represents:
+
+Network Portion: The first few sections (octets) of an IP address identify the network that the device belongs to. This part of the IP address is common among 
+all devices on the same network, allowing them to communicate with each other and share resources.
+
+Host Portion: The remaining sections of the IP address specify the individual device, or “host,” within that network. This part makes each device unique within
+the network, allowing the router to distinguish between different devices.
+
+The 32-bit IP address is divided into sub-classes. These are given below:
+Class A: The network ID is 8 bits long and the host ID is 24 bits long.
+Class B: The network ID is 16 bits long and the host ID is 16 bits long.
+Class C: The network ID is 24 bits long and the host ID is 8 bits long.
+Class A: 255.0.0.0 - 1 to 126(First octet of IP)
+Class B: 255.255.0.0 - 128 to 191 (First octet of IP)
+Class C: 255.255.255.0 - 192 to 223 (First octet of IP)
+
+| Port |    Service    |                     Name                     |
++------+---------------+----------------------------------------------+
+|   22 | SSH & SFTP    | Secure Shell & Secure File Transfer Protocol |
+|   23 | Telnet        | Telnet                                       |
+|   25 | SMPT          | Simple Mail Transfer Protocol                |
+|   53 | DNS           | Domain Name Service                          |
+|   67 | DHCP server   | Dynamic Host Control Protocol                |
+|   68 | DHCP client   | Dynamic Host Control Protocol                |
+|   69 | TFTP          | Trivial File Transfer Protocol               |
+|   80 | HTTP          | Hypertext Transfer Protocol                  |
+|  110 | POP3          | Post Office Protocol                         |
+|  123 | NTP           | Network Time Protocol                        |
+|  139 | NetBIOS       | Network Basic Input/Output System            |
+|  143 | IMAP          | Internet Mail Application Protocol           |
+|  161 | SNMP          | Simple Network Management Protocol           |
+|  162 | SNMPTRAP      | Simple Network Management Protocol Trap      |
+|  389 | LDAP          | Lightweight Directory Access Protocol        |
+|  443 | HTTPS         | Hypertext Transfer Protocol Secure           |
+|  445 | SMB           | Server Message Block                         |
+|  514 | Syslog        | System Logging Protocol                      |
+|  587 | SMPT TLS      | Simple Mail Transfer Protocol TLS            |
+|  636 | LDAPS         | Lightweight Directory Access Protocol Secure |
+|  993 | IMAP over SSL | Internet Message Access Protocol over SSL    |
+|  995 | POP3 over SSL | Post Office Protocol over SSL                |
+| 1433 | SQL           | Structured Query Language                    |
+| 1521 | SQLnet        | SQLnet Protocol - Oracle                     |
+| 1720 | H.323         | H.323 Hostcall                               |
+| 3306 | MySQL         | MySQL Protocol                               |
+| 3389 | RDP           | Remote Desktop Protocol                      |
+| 5060 | SIP           | Session Initiation Protocol                  |
+| 5061 | SIP TLS       | Session Initiation Protocol TLS     
+
+What is DHCP and why is it important?
+DHCP stands for Dynamic Host Configuration Protocol, and it uses ports 67 and 68.
+
+IP Address
+Subnet Mask
+Default-Gateway
+DNS-Server
+
+DHCP is a network management protocol used in a client-server model. It provides dynamic and reliable assignment of IP addresses, 
+to every device on the network, based on its available pool of IP addresses. This available pool of IP addresses is known as the 
+DHCP scope.
+Common network parameters (sometimes referred to as “DHCP Options”) requested include subnet mask, router, domain name server, 
+hostname and domain name.
+
+This protocol eliminates the need to statically assign IP addresses. There are some cases where static assignment of IP addresses may 
+be necessary. But most of the time it can end up causing issues down the road due to configuration errors.
+
+Each IP address that it assigns is leased for a certain period of time, this is known as the DHCP lease. When the lease expires, the 
+IP address returns to the scope in DHCP server. This period of time until lease expiration is known as the DHCP lease time.
+
+DORA Process:
+As mentioned earlier, DORA is an acronym for Discover, Offer, Request, and Acknowledge. 
+This process is used by the DHCP server and client in order to dynamically assign an IP address.
+
+Discover (Server Discovery): In the discovery phase, the DHCP client sends out a discover broadcast to all the DHCP servers in range.
+Offer (IP Lease Offer): In the offer phase, the DHCP server offers the an available IP address to lease.
+Request (IP Lease Request): In the request phase, the DHCP client sends out a request broadcast to accept the IP lease offer from the DHCP server.
+Acknowledge (IP Lease Acknowledgement): In this final phase, the DHCP server sends acknowledgement broadcast, along with the DHCP lease time to the DHCP client.
+
+1. Discover
+When you select the option “Obtain IP automatically,” it means that a DHCP client is requesting IP to the DHCP server, and this discover request is sent out
+in the form of a broadcast request using 255.255.255.255 This request will reach every device in the network including DHCP server too.
+
+Header info of discovery message –
+
+Source IP address: 0.0.0.0
+Destination IP address: 255.255.255.255
+Source MAC address: MAC address of DHCP clients
+Destination MAC address: FF:FF:FF:FF:FF:FF
+2. Offer
+Once the DHCP accepts the discover request sent by the client. The DHCP will offer some IP to the client.
+
+Header info of offer message –
+
+Source IP address: IP of DHCP Server Destination
+IP address: 255.255.255.255
+Source MAC address: DHCP Server’s MAC address
+Destination MAC address: MAC add of DHCP clients
+
+3. Request
+The client will select the IP address accordingly and request to the DHCP server that “I want to use this IP”. 
+So, the client will send a request to use the specific selected IP.
+
+Header info of request message –
+
+Source IP address: 0.0.0.0
+Destination IP address: 255.255.255.255
+Source MAC address: MAC add of DHCP clients
+Destination MAC address: MAC add of DHCP server
+
+4. Acknowledge
+The DHCP server will receive the request sent by the client machine and then acknowledge the requested IP.
+
+Header info of acknowledge message –
+Source IP address: IP Address of DHCP Server
+Destination IP address: 255.255.255.255
+Source MAC address: MAC address of DHCP server
+Destination MAC address: MAC add of DHCP clients
+
+What is an APIPA address?
+APIPA stands for Automatic Private IP Addressing. When the DHCP client cannot connect to the DHCP server during the discovery phase, 
+the client machine will assign itself an APIPA address. If your machine has an APIPA address, this means there is a problem with your network connectivity 
+that you should investigate.
+
+If Microsoft Windows computers cannot make contact with a DHCP server to get an IP address, they will self-assign themselves an IP address.  
+These IP addresses will be in this range 169.254.0.1 - 169.254.255.254.  And the reason they do this is so that they will still be able to communicate with
+other computers on the same local network/subnet that also have self-assigned IP addresses.
+
+APIPA address range: 169.254.0.0–169.254.255.255
+
+DNS:
+The Domain Name System (DNS) is a system that translates human-readable domain names into machine-readable IP addresses, 
+while a DNS lookup is the process of using the DNS to find the IP address for a domain name
+
+What is a DNS recursive resolver?
+DNS recursive resolver
+A recursive resolver (also known as a DNS recursor) is the first stop in a DNS query. The recursive resolver acts as a middleman 
+between a client and a DNS nameserver. After receiving a DNS query from a web client, a recursive resolver will either respond 
+with cached data, or send a request to a root nameserver, followed by another request to a TLD nameserver, and then one last request 
+to an authoritative nameserver. After receiving a response from the authoritative nameserver containing the requested IP address, 
+the recursive resolver then sends a response to the client.
+
+During this process, the recursive resolver will cache information received from authoritative nameservers. 
+When a client requests the IP address of a domain name that was recently requested by another client, the resolver can 
+circumvent the process of communicating with the nameservers, and just deliver the client the requested record from its cache.
+Most Internet users use a recursive resolver provided by their ISP, but there are other options available; 
+for example Cloudflare's 1.1.1.1.
+
+What is a DNS root nameserver?
+DNS root nameserver
+The 13 DNS root nameservers are known to every recursive resolver, and they are the first stop in a recursive resolver’s quest for DNS records. 
+A root server accepts a recursive resolver’s query which includes a domain name, and the root nameserver responds by directing the 
+recursive resolver to a TLD nameserver, based on the extension of that domain (.com, .net, .org, etc.). The root nameservers are 
+overseen by a nonprofit called the Internet Corporation for Assigned Names and Numbers (ICANN).
+
+Note that while there are 13 root nameservers, that does not mean that there are only 13 machines in the root nameserver system. 
+There are 13 types of root nameservers, but there are multiple copies of each one all over the world, which use Anycast routing to 
+provide speedy responses. 
+If you added up all the instances of root nameservers, you’d have over 600 different servers.
+
+What is a TLD nameserver?
+A TLD nameserver maintains information for all the domain names that share a common domain extension, such as .com, .net, or whatever 
+comes after the last dot in a URL. For example, a .com TLD nameserver contains information for every website that ends in ‘.com’. 
+If a user was searching for google.com, after receiving a response from a root nameserver, the recursive resolver would then send 
+a query to a .com TLD nameserver, which would respond by pointing to the authoritative nameserver (see below) for that domain.
+
+Management of TLD nameservers is handled by the Internet Assigned Numbers Authority (IANA), which is a branch of ICANN. 
+The IANA breaks up the TLD servers into two main groups:
+
+Generic top-level domains: These are domains that are not country specific, some of the best-known generic TLDs include .com, .org, 
+.net, .edu, and .gov.
+Country code top-level domains: These include any domains that are specific to a country or state. Examples include .uk, .us, .ru, and .jp.
+There is actually a third category for infrastructure domains, but it is almost never used. This category was created for the .arpa domain, 
+which was a transitional domain used in the creation of modern DNS; its significance today is mostly historical.
+
+What is an authoritative nameserver?
+When a recursive resolver receives a response from a TLD nameserver, that response will direct the resolver to an authoritative nameserver. 
+The authoritative nameserver is usually the resolver’s last step in the journey for an IP address. The authoritative nameserver contains 
+information specific to the domain name it serves (e.g. google.com) and it can provide a recursive resolver with the IP address 
+of that server found in the DNS A record, or if the domain has a CNAME record (alias) it will provide the recursive resolver with 
+an alias domain, at which point the recursive resolver will have to perform a whole new DNS lookup to procure a record from an 
+authoritative nameserver (often an A record containing an IP address). Cloudflare DNS distributes authoritative nameservers, 
+which come with Anycast routing to make them more reliable.
+
+DNS Lookup(Both are same):
+A DNS lookup, or Domain Name System lookup, is the process of translating a human-readable domain name into a computer-readable 
+IP address. This process happens when you enter a URL into your web browser's address bar.
+
+Often, DNS lookup information is stored temporarily either on your own computer or within the DNS system itself. 
+There are usually 8 steps involved in a DNS lookup. If the information is already stored (cached), some of these steps can be skipped, making the process faster. 
+Here is an example of all 8 steps when nothing is cached:
+
+A user types “example.com” into a web browser.
+The request goes to a DNS resolver.
+The resolver asks a root server where to find the top-level domain (TLD) server for .com.
+The root server tells the resolver to contact a .com TLD server.
+The resolver then asks the .com TLD server for the IP address of “example.com.”
+The .com TLD server gives the resolver the IP address of the domain’s nameserver.
+The resolver then asks the domain’s nameserver for the IP address of “example.com.”
+The domain’s nameserver returns the IP address to the resolver.
+
+What is a Private IP Address?
+The Private IP Address of a system is the IP address that is used to communicate within the same network. Using private IP data or 
+information can be sent or received within the same network. 
+The router basically assigns these types of addresses to the device. Unique private IP Addresses are provided to each and every 
+device that is present on the network. These things make Private IP Addresses more secure than Public IP Addresses.
+
+Range:
+10.0.0.0 – 10.255.255.255, 
+172.16.0.0 – 172.31.255.255, 
+192.168.0.0 – 192.168.255.255 
+
+Can we trace Private IP Address?
+Yes, we can trace Private IP Addresses, but this happens only by using other devices on the local network. Devices that are connected 
+to the local network has private IP Address and this can only be visible to the devices that are connected within that network. 
+But it can’t be seen online as it happens in public IP Addresses.
+
+What is a Public IP Address?
+The Public IP Address of a system is the IP address that is used to communicate outside the network. 
+A public IP address is basically assigned by the ISP (Internet Service Provider). 
+
+Public IP Address is basically of two types:
+
+Dynamic IP Address: Dynamic IP Addresses are addresses that change over time. After establishing a connection of a smartphone or computer with the Internet, 
+ISP provides an IP Address to the device, these random addresses are called Dynamic IP Address.
+
+Static IP Address: Static Addresses are those addresses that do not change with time. These are stated as permanent internet addresses. 
+Mostly these are used by the DNS (Domain Name System) Servers.
+
+Can we trace Public IP Address?
+Yes, Public IP Addresses can be traced back to the Internet Service Provider that can easily trace the geographical location. 
+This might reveal the location very easily to advertisers, hackers, etc. For using the Internet anonymously, you can easily hide your IP Address by using 
+different ways like VPN, Tor Browser, etc. But among different ways, VPN is the fastest and most secure way of using the Internet.
+
+VPN(Virtual Private Network):
+A VPN acts as a tunnel through which all your data goes from your location to your destination. It's all properly encrypted and 
+secure so that any outside party can’t see what data you are transferring.
+
+A VPN works by routing / forwarding all your data from your laptop or phone through your VPN to the internet, rather than directly 
+through your ISP.
+When you use a VPN, it encrypts all your data on the client side. Then after the data is encrypted, it's passed through a VPN tunnel 
+which others can’t access, and then it reaches the internet.
+But before going through the VPN tunnel, the request is first sent to your ISP, but as it's encrypted, ISP can’t figure out 
+what you are trying to access. So it forwards your request to your VPN server. Then the VPN sends the request to your desired IP address or website.
+
+How a VPN Can Help You Protect Your Online Identity?
+When you use the internet, the data you send or request through a web browser to any server (for example, when Google searching),
+along with your request,IP address (for example, your laptop or mobile) and destination IP address (like Google) first reaches your ISP.
+The ISP monitors all your activity and then forwards your request to the destination IP address and also gets back the information in 
+the same way.All your information travels through a middle station, your ISP. 
+They have all your history of using the internet and how you are using the internet. 
+
+But when you are using a VPN, that's not the case.
+Whenever you send any request to any website or server, instead of connecting directly to the server, it first reaches the VPN server. 
+There, all your requests and information are encrypted and then sent forward to your desired website.Your ISP is still there to monitor things. 
+But if you're using VPN, it will automatically change the IP address of your destination to a different IP address and encrypt the destination IP address. 
+This way, your ISP won’t be able to read it and will assume that all your requests were going to the IP address of the VPN. So it will forward all your 
+requests to the VPN.
+When your request or information reaches your VPN, it will be decrypted, and it will forward your request to the website you wish to access. 
+The website or server will get the VPN request and will assume that the request is coming from that VPN server. 
+It will allow the VPN to access the website and you'll be able to visit the website without letting your ISP know.
+Similarly, when you download a file, all the traffic or information flows from a web server to the VPN. The VPN encrypts all the 
+information and then forwards it to your ISP – which will still have no idea what’s going on, as the information is encrypted.
+Finally, the info gets forwarded to your laptop or mobile. When it reaches your device, it will be decrypted, and you will be able to 
+view the website as it's available to others.
+
+Advantages:
+Privacy
+A VPN encrypts your data, such as passwords, credit card information, and browsing history, to keep it private. This is especially important when connecting 
+to public Wi-Fi networks. 
+Anonymity
+A VPN masks your IP address, which contains information about your location and browsing activity. This makes it harder for websites to track you. 
+Security
+A VPN can protect your internet connection from unauthorized access. It can also shut down pre-selected programs if it detects suspicious activity. 
+Bypass restrictions
+A VPN can help you access websites that are blocked or restricted in your region. 
+Avoid data caps
+A VPN can help you avoid data caps because your internet service provider (ISP) can't see how much data you're using
+
+VLAN(Virtual Locak Area Network):
+A LAN is a grouping of two or more devices on a network. A VLAN is a virtual LAN, a subgroup within a local network. VLANs make it easy for 
+network administrators to separate a single switched network into multiple groups to match the functional and security requirements of their systems.
+
+Static NAT:
+Maps each internal IP address to a unique external IP address. This is a one-to-one mapping that is persistent, meaning the same internal IP address always maps 
+to the same external IP address. Static NAT is often used for servers that need to be accessible from outside the network, such as web servers and mail servers. 
+
+Dynamic NAT:
+Maps internal IP addresses to a pool of external IP addresses. This is a one-to-many mapping that is temporary and inconsistent. Dynamic NAT allows multiple 
+private IP addresses to be mapped to a smaller number of public IP addresses, which can provide security and anonymity for internal hosts. 
+
+Port Address Translation (PAT) – 
+This is also known as NAT overload. In this, many local (private) IP addresses can be translated to a single public IP address. Port numbers are used to 
+distinguish the traffic, i.e., which traffic belongs to which IP address. This is most frequently used as it is cost-effective as thousands of users can 
+be connected to the Internet by using only one real global (public) IP address. 
+
+Bandwidth:
+The maximum amount of data that can be transferred in a given amount of time. 
+Bandwidth is a potential rate, and the actual throughput could be lower due to other factors.
+
+Throughput
+The amount of data transferred in a given amount of time. 
+Throughput takes into account latency, network speed, packet loss, and other factors. 
+High throughput means users are receiving large amounts of data per second.
+
+Latency:
+The amount of time it takes for a data packet to travel from its source to its destination. Latency is also known as the ping rate or delay. 
+High latency means data is taking a long time to travel, which can lead to slow response times and a low-speed network connection.
+
+Latency is the measure of the delay users encounter when sending or receiving data over a network. Throughput, on the other hand, determines the network's 
+capacity to accommodate multiple users simultaneously, indicating how many users can access the network concurrently.
+
+grep:
+https://phoenixnap.com/kb/grep-command-linux-unix-examples
+
+LVM:
+LVM is kind of disk partition
+
+Steps for LVM 
+1. Install a new hard disk drive
+2. Designate Physical Volumes (PV) so that it will be available to LVM as storage capacity. 
+
+Command to create a PV:
+pvcreate /dev/sdb1
+pvcreate /dev/sdc
+
+The first command designates partition 1 on storage disk b as a PV. 
+The second command sets the total capacity of storage disk c as a PV.
+
+Display PV capacity and additional information:
+pvdisplay
+
+3.  Manage Volume Groups
+Now we have created PV
+We can create Volume Group (VGs)
+A server can have multiple VG
+A disk can be part of multiple VG
+PV can only be member of one VG
+
+VG must have at least one member (vg00 is our group name and others are our PVs)
+vgcreate vg00 /dev/sdb1 /dev/sdc
+
+To display information for a VG named vg00
+vgdisplay vg00
+
+4. Now it's time to manage Logical Volumes
+VG can be subdivided into one or more LVs (lvcreate is the command)
+
+lvcreate -L size(1G or 1T) -n lvname vgname
+
+To display information for a LV
+lvdisplay /dev/vg00/lvname
+
+5. Now we have LV also, so we can now move with apply a filesytem and set a mount point.
+
+Run the mkfs.ex4 command on the LV.
+Create a mount point by using mkdir.
+Manually mount the volume using the mount command, or edit the /etc/fstab file to mount the volume automatically when the system boots.
+Use the df -h command to verify the storage capacity is available.
+
+Proxy Server:
+Proxy servers serve as a "middleman" between a user and the web. They hide the user's IP address from a web server the user visits, 
+but it does not secure the data that is sent and received. The server can also cache the data. It protects the clients.
+Uses: regulating traffic, blocking harmful websites, masking client IP addresses, logging user activity for a organization, 
+bypassing content restrictions and commonly used for web data collection.
+
+Working:
+When a user sends a request to a website, the request goes to the proxy server first. The proxy server then sends the request to the 
+destination server and returns the data to the user. 
+
+Difference b/w Proxy server and VPN:
+Proxy server does not encrypt the data send by the client. This server acts at Application Layer whereas router acts at Networking Layer.
+A VPN takes this process a step further. It hides the user's IP address and location so they cannot be identified.
+
+Difference b/w Routing and Proxying:
+1.Proxy server acts at Application Layer whereas router acts at Networking Layer.
+2.In the OSI model, routing is generally restricted to layer 3, the network layer. Routers will be primarily shuffling IP packets between networks.
+Proxies generally work on layer 4 (transport) and above (layer 7, the application layer, being most common). Proxies likely work on a data unit greater than a 
+single packet, and are more likely to do things like add to modify the payload of data (HTTP proxies adding Via: headers a good example).
+
+Reverse Proxy:
+It protects the servers.
+A server that sits in front of one or more web servers and serves as a go-between for the web servers and the Internet is known as 
+a reverse proxy. 
+
+The reverse proxy receives the request before sending it on to the internet resource for the client. After sending the request to one 
+of the web servers, the reverse proxy receives the response from that server. The response is then sent back to the client by 
+the reverse proxy.
+
+Load balancing: Can help balance the load of many incoming requests to a popular website 
+Security: Can provide an additional layer of security (DDos Attacks)
+Performance optimization: Can help enhance the performance of the network
+
+Firewall:
+A virtual wall in the security system world is designed to protect our system from unwanted traffic and unauthorized access to our system.
+
+The security system in Linux OS is known as Linux Firewall, which monitors and governs the network traffic (outbound/inbound connections). 
+It can be used to block access to different IP addresses, Specific subnets, ports (virtual points where network connections begin and end), and services.
+
+Firewalld which is used to maintain the firewall policies. A dynamically managed firewall tool in a Linux system is known as Firewalld, it can be updated 
+in real-time if there are any changes in the network environment.
+To check status of Firewalld - "sudo systemctl status firewalld"
+ex:
+Rule 2: Allowing incoming traffic on a specific port
+We are allowing traffic on a specific TCP port 8080 you can replace it with requirements.
+
+sudo firewall-cmd --zone=public --add-port=8080/tcp --permanent
+sudo firewall-cmd --reload
+
+iptables:
+The iptables command in Linux is a powerful tool that is used for managing the firewall rules and network traffic. 
+It facilitates allowing the administrators to configure rules that help how packets are filtered, translated, or forwarded.
+
+On using this iptables, you can set up security policies to control incoming and outgoing traffic, define port forwarding, and implement network 
+address translation (NAT).

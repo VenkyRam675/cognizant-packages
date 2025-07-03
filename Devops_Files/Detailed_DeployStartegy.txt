@@ -1,0 +1,252 @@
+maxUnavailable = 25%
+maxSurge = 25%
+These values are percentages of the desired number of pods in your deployment.
+
+🔁 What These Mean
+Assume your deployment has 4 replicas (pods):
+
+25% of 4 = 1 pod
+So:
+maxUnavailable = 1 → At most 1 pod can be unavailable during the update.
+maxSurge = 1 → At most 1 extra pod (above the desired count) can be created during the update.
+✅ Rolling Update Behavior
+Start: You have 4 old pods running.
+Step 1:
+Kubernetes creates 1 new pod (maxSurge).
+Now you have 5 pods (4 old + 1 new).
+Step 2:
+If the new pod is healthy and receiving traffic, Kubernetes terminates 1 old pod (maxUnavailable).
+Now you have 4 pods again (3 old + 1 new).
+Repeat:
+This process continues: for every new pod that becomes healthy, an old pod is removed, maintaining the constraints.
+🔄 Final Result
+Yes — eventually all old pods will be replaced by new pods as long as:
+
+The new pods are healthy.
+The update process is not interrupted.
+The deployment strategy remains unchanged.
+
+sample example of deployment yaml file with rolling updates
+Here's a sample Kubernetes Deployment YAML file that demonstrates a rolling update strategy using maxUnavailable and maxSurge:
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-app
+  labels:
+    app: my-app
+spec:
+  replicas: 4
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 25%
+      maxSurge: 25%
+  selector:
+    matchLabels:
+      app: my-app
+  template:
+    metadata:
+      labels:
+        app: my-app
+    spec:
+      containers:
+      - name: my-app-container
+        image: nginx:1.25
+        ports:
+        - containerPort: 80
+
+
+🔍 Explanation:
+replicas: 4 → Desired number of pods.
+strategy.type: RollingUpdate → Specifies the update strategy.
+maxUnavailable: 25% → At most 1 pod (25% of 4) can be unavailable during the update.
+maxSurge: 25% → At most 1 extra pod can be created temporarily during the update.
+This ensures a smooth rollout where traffic is not disrupted, and old pods are replaced gradually as new ones become healthy.
+
+In a Canary Deployment, instead of updating all pods at once (like in a rolling update),
+you gradually shift traffic to the new version by deploying it to a small subset of users or pods first, 
+then increasing the rollout if everything works well.
+
+Canary Deployment Strategy Overview:
+Deploy the new version to a small number of pods (e.g., 1 out of 4).
+Monitor performance, logs, and errors.
+If stable, increase the number of new pods gradually.
+If issues are detected, roll back without affecting most users.
+
+✅ Example: Canary Deployment with Kubernetes
+Kubernetes doesn’t support canary deployments natively out of the box, 
+but you can implement it using multiple Deployments and a traffic management tool like Istio, NGINX Ingress, or Flagger.
+
+Use Nginx and write sample yaml file for canary
+
+Here’s a sample Kubernetes canary deployment using NGINX and two versions of your app. 
+This setup uses two Deployments and an NGINX Ingress to split traffic between them.
+
+🧱 1. Two Deployments (Stable and Canary)
+✅ Stable Deployment (v1)
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-app-v1
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: my-app
+      version: v1
+  template:
+    metadata:
+      labels:
+        app: my-app
+        version: v1
+    spec:
+      containers:
+      - name: my-app
+        image: my-app:1.0
+        ports:
+        - containerPort: 80
+
+
+🧪 Canary Deployment (v2):
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-app-v2
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: my-app
+      version: v2
+  template:
+    metadata:
+      labels:
+        app: my-app
+        version: v2
+    spec:
+      containers:
+      - name: my-app
+        image: my-app:2.0
+        ports:
+        - containerPort: 80
+
+
+🔁 2. Two Services (One for Each Version)
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-app-v1
+spec:
+  selector:
+    app: my-app
+    version: v1
+  ports:
+    - port: 80
+      targetPort: 80
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-app-v2
+spec:
+  selector:
+    app: my-app
+    version: v2
+  ports:
+    - port: 80
+      targetPort: 80
+
+
+🌐 3. NGINX Ingress with Canary Annotation
+This uses NGINX Ingress Controller’s canary annotations.
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: my-app-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  rules:
+  - host: myapp.example.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: my-app-v1
+            port:
+              number: 80
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: my-app-canary
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/canary: "true"
+    nginx.ingress.kubernetes.io/canary-weight: "25"  # 25% traffic to v2
+spec:
+  rules:
+  - host: myapp.example.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: my-app-v2
+            port:
+              number: 80
+
+
+✅ Result:
+75% of traffic goes to v1 (stable).
+25% of traffic goes to v2 (canary).
+You can monitor v2, and if it's stable, increase the weight or fully switch over.
+
+
+Differences between three strataegies:
+1. Rolling Updates:
+When to use:
+When you want to update your application gradually, without significant downtime, and can tolerate slight inconsistencies during 
+the update process. 
+
+Benefits:
+Zero downtime: Updates are performed incrementally, ensuring some instances are always available. 
+Automated: Easily automated through tools like Kubernetes. 
+Minimal configuration: Generally requires less configuration compared to other strategies. 
+
+2. Blue/Green Deployments: 
+When to use:
+For critical applications requiring near-zero downtime and fast rollbacks, often used for major updates or when you want to thoroughly 
+test in a separate environment. 
+
+Benefits:
+Zero downtime: Traffic is switched entirely to the new environment (green) only after thorough testing. 
+Fast rollback: Easy to revert to the previous version by simply switching traffic back to the old environment (blue). 
+Thorough testing: Allows for extensive testing of the new version in a separate, isolated environment. 
+
+3. Canary Deployments: 
+When to use:
+For testing new versions with a subset of users before a full release, often used for gradual rollouts and risk mitigation.
+ 
+Benefits:
+Phased rollout: Reduces user exposure to potential issues by releasing to a small percentage of users first. 
+Risk mitigation: Allows for early detection of issues and rapid rollback if necessary. 
+Detailed feedback: Provides valuable insights into the new version's performance and user experience before a full release.
+ 
+In essence:
+Rolling updates: are a good choice for simple, automated updates with minimal risk and downtime. 
+Blue/green: is ideal for critical applications where downtime is unacceptable and fast rollbacks are essential. 
+Canary deployments: are best for gradual releases, risk assessment, and testing in production. 
+
+
+
+
+

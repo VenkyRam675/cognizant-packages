@@ -1,0 +1,100 @@
+RollBack Strategies in DevOps
+
+For a Microservice Architecture, for each service there is separate dockerfile.
+Main Pipeline Flow:  
+Docker Image - Docker Hub - Saving the current manifest file in archive artifacts - Updating the Kubernetes Manifest file with the 
+latest docker image (GitHub Repo) - Flux CD - is then doing the deployment.
+
+Whenever there is problem with the new version deployment(image), 
+
+First Way:
+Rollback Pipeline will get executed
+Second Pipeline (Rollback Pipeline ): 
+1.Service name should be an input and 
+2.Query the image previous image from the latest one using JQ agent in Jenkins pipeline - image previous to the latest one in DockerHub - 
+Update manifest file with the image previous to the latest one.
+
+Second Way:
+Fetch the archive artifacts file - Update manifest file
+Before updating the Kubernetes Mainfest file in Main Pipeline Flow , we can store the current image(not latest) in a file and 
+store it in archive artifacts in jenkins, we can again update the mainfest file image tag with the one that we have stored.
+
+
+
+PersistentVolume (PV)
+
+A PersistentVolume (PV) is a cluster-wide resource that represents a piece of storage. It is provisioned by an administrator or 
+dynamically created using a StorageClass. PVs are independent of any specific pod and can be reused across multiple pods. 
+They define storage properties such as capacity, access modes (e.g., ReadWriteOnce), and reclaim policies (e.g., Retain or Delete).
+
+Example of a PV YAML definition:
+
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+	name: pv-example
+spec:
+	capacity:
+		storage: 10Gi
+	accessModes:
+	- ReadWriteOnce
+persistentVolumeReclaimPolicy: Retain
+storageClassName: slow
+hostPath:
+path: /data
+
+PersistentVolumeClaim (PVC)
+
+A PersistentVolumeClaim (PVC) is a request for storage by a pod. It specifies the desired storage size, access mode, and optionally a 
+storage class. Kubernetes matches the PVC to an available PV that satisfies the request. Once bound, the PVC allows a pod to use the 
+storage as a volume.
+
+Example of a PVC YAML definition:
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+name: pvc-example
+spec:
+accessModes:
+- ReadWriteOnce
+resources:
+requests:
+storage: 5Gi
+storageClassName: slow
+
+
+Practical Example
+
+To use storage in a pod, you first create a PV and a PVC. The PVC binds to the PV, and the pod mounts the PVC as a volume:
+
+apiVersion: v1
+kind: Pod
+metadata:
+name: pod-storage
+spec:
+containers:
+- name: nginx
+image: nginx
+volumeMounts:
+- name: storage
+mountPath: /data
+volumes:
+- name: storage
+persistentVolumeClaim:
+claimName: pvc-example
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

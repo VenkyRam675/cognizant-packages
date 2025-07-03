@@ -1,0 +1,1702 @@
+What is Devops?
+It is a process of improving the Application Delivery by ensuring that there is proper Automation , proper Quality, proper Monitoring or
+Obsevability and continuos Testing.
+
+Why Devops?
+Previously we require many teams to deploy an application on server like System Admin, Build and Release Engineer, Server Admin 
+like this there are many people has to perform to overcome this we need DEVOPS. Because there is many manual works, it was taking more 
+time so that we need DEVOPS.
+
+SDLC:
+Planning --> Defining --> Designing --> (Building --> Testing --> Deploying.) -->  These three comes under the Devops persons life.
+Here a Devops associate will look to automate these three processes.
+
+Hypervisor:(VMWare, VirtualBox)
+It is a software where we can create multiple Virtual Machines(VM1,VM2...).
+
+Virtualization is for whenever we want to create a sever for different teams instead of using different physical servers for each team, 
+we can use a Hypervisor to create multiple VM's(which has Ip's) for each team on a single physical server.
+Because of this we can improve efficiency of the space and the memory of the physical servers.
+
+Normally, If we want to create an instance in AWS, the physical server of the AWS will be there at the data centre of the loacation that
+we are requested to create an instance. There will be many Physical servers in a data centre
+1. The physical server will get the request of the instance.
+2. It will search for the enough space and memory of the physical server is there or not in any one.
+3. Once it found, there will be a hypervisor in each Physical server. The hypervisor will give create a VM for us.
+4. It will send the VM in form of Ip address and Key/value pair.
+
+We can able to use all the services in aws using AWS CLI(Command Line Interface):
+1. First, have to download the CLI installer on machine found in aws docs.
+2. In your local VM, you can use command "aws configure".
+3. You need to give the details of Access keys and secret access keys.(security credientials)
+4. You can acces all the service that are available in the AWS. 
+
+Day-6:
+Why Linux over windows?
+1. Free OS. 
+2. Open source
+3. Secure
+4. Lot of Distributions like RedHat, Ubuntu, CentOS etc..
+5. Fast
+
+Kernel is heart of a Linux system, it is responsible to connect your software with hardware.
+1. Device Management.
+2. Memory Management.
+3. Process Management.
+4. Handling System Calls.
+
+Memory usage - free
+No.of Cpus - nproc
+disk size - df -h
+All the above to see(How many processes running, sleeping), mem usage, cpu usage - top
+
+Shell Scripting:
+#!/bin/bash or sh or ksh...
+
+#!- Shebang
+bash or sh or ksh --- these are executables just like jvm in java which helps to run code
+
+Difference between sh and bash--- Previously both were of same using linking concept , but nowadays most of OS's were decided to use any one as
+default.
+
+File Permission using chmod:
+4:Read
+2:write
+1:execute
+If you give chmod 777 filename- means all the owner-group-otheruser has all the access.
+Suppose, chmod 766 - means owner has rwx, but group and user has rw only.(because 4+2=6 means only read(4)+write(2))
+If 733- owner has rwx, but group and user has wx only.(because 2+1=3 means only write(2)+execute(1))
+
+To see processes - (ps -ef) and by name of process (ps -ef | grep "name").
+Whenever you want to execute a script with a standard output of that script you can use - (./script.sh | grep "no..")
+Here '|'- it is called as Pipe. which will send output of the first command to the second command.
+
+--Question: what will be the o/p of (date | echo "Todays:")
+The output will be "Todays:", because there will be some log flows which is stdin, stdout, stderr.
+The Pipe command only returns the data going through stdout not to stdin, Since date is a System default command.
+So, the pipe will not pass the output to the other side.
+
+awk- is a command to give the specific value from a line or from differnt strings.
+ex: To get only Process id's 
+ps -ef | grep bin | awk -F" " '{print $2}'
+Here why we give " ", space in awk is that in between first and second column in ps -ef listing space is the seperator.
+
+Command:
+set -x : For debug mode, like if we write this command on top of the script, it will execute the commands in the script in a way the
+         command will be the headings of the outputs of those commands.
+
+set -e : For if there is any errors in the script it will try to exit the script there itself, it will not continued with remaining 
+		commands execution.
+
+set -o : We have to write this command whenever we are using pipes in the script, otherwise if the last part of the pipe is correct, 
+	    it will execute the entire remaining script.
+		
+Ex:
+set -x
+set -e
+set -o 
+
+df -h
+free -g 
+nproc 
+ps -ef | echo "name"
+
+curl sitename- Curl command is used to get the files or log files to show using the link of the file from internet.
+wget sitename - will be used to download the file 
+
+find- It is a command used to find any file in the server from anywehere
+ex: find / -name "bin"
+Here the above command to find the file with name bin.
+
+if...else:
+Syntax and exmaple:
+a=10
+b=5
+
+if [$a > $b]
+then
+	echo " a is..."
+else 
+	echo "a..."
+fi;
+
+For loop:
+
+ex: for i in {1.100}; do echo $i; done
+It will print numbers from 1 to 100 
+
+trap: It is a command to trap any signals in the linux
+ex:trap "echo don't use ctrl+c" SINGINT
+Means you can stop anyone from using "ctrl+c", SINGINT is ctrl+c signal.
+
+Write a script to display only the process id's:
+ps -ef | awk -F" " '{print $2}'
+
+Write a script to print only errors from a remote log:
+curl website_of_remote_log | grep "which_word_to_execute"
+So, using curl,pipe and grep we can get the required.
+
+Script for how to use user inputs in shell:
+#!/bin/bash
+
+read -p "Username: " user #-p to print the quoted line.
+read -sp "Password: " password  #-sp to hide input typing
+echo -e "\nWelcome $user to the portal"     #"-e" is whenever we are using \n
+
+Write a shell script to print numbers divided by 3 or 5 and not 15.
+#!/bin/bash
+
+for i in {1..100}; do
+if ((($i%3==0 || $i%5==0) && $i%15!=0)); then
+        echo "Number is $i"
+fi;
+done
+
+#For and if should have always two open brackets((...))
+
+Write a script to print number of occurences of "s" in mississipi.
+#!/bin/bash
+
+x=mississipi
+grep -o "s" <<<"$x" | wc -l
+
+#grep only "s" and give that to x and wordcount(wc) fetch no.of.lines(-l) of x print
+
+Network troubleshooting tool:
+traceroute
+
+How to sort the files
+In linux, there is sort command using this we can sort them.
+
+How will you manage logs of a system that generate huge log files everyday?
+Using logrotate command we can zip them at end of the day and after 30 days we can delete them.
+
+
+Script to track the ec2, iam,lambda, s3 resources
+#!/bin/bash
+
+#############
+#name:Sivesh
+#date:29-01-2025
+#version:v1
+#Script to track the ec2, iam,lambda, s3 resources
+
+set -x
+
+#To list EC2 Instances
+echo "List Instances"
+aws ec2 describe-instances | jq '.Reservations[].Instances[].InstanceId'
+
+#To list s3 buckets
+echo "List s3 buckets"
+aws s3 ls
+aws s3 ls
+
+#To list lambda function
+echo "List Lambda functions"
+aws lambda list-functions
+
+#To list Iam users
+echo "List Users"
+aws iam list-users
+
+#Using jq command we can read the json file get the values ,
+#So If I want to fetch the instnce id we can use that.
+
+Project to revoke a resigned person from a company github repository.
+#curl -s -u "VenkyRam675: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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" "https://api.github.com/repos/sample-org170/samplerepo2/collaborators" 
+| jq -r '.[] | select(.permissions.pull == true) | .login'
+
+Purpose of Version Control System:
+1.Staring
+2.Versioning
+
+Difference between Centralized and Distributed Control Systems?
+In Centralized, there will be a central system where multiple developers has to work and share their work, like if 
+there is any issue in that only system, then we can't get that back.
+
+But In Distributed, there will be a central system but a developer can also copy that central system and can have his 
+own system which is called as fork in GIT. like we can fork the main system and can have it for each developer.
+Like that if there is any issue with the central system, we can get back the code with that forks.
+
+Difference between GIT and GITHUB:
+Git is  a open source platform where anyone can install the version of git into a linux system like ec2 instance, 
+and you can share your multiple versions of code and versioning and all the git commands.
+
+GITHUB is made on GIT where it also provides some additional features like sharing the code to peers or in an organization.
+
+In GIT, using .git hidden folder all the actions will takes place.
+Lifecycle of using git is - git add, git commit, git push.
+
+git status- Gives what are the status of files that are added to git, like if there are any changes.
+git diff - Shows what are all the changes done compare to previous.
+git commit - It is to write comments to the file you are changing or modifying.
+You can do that after saving using "git add" a file like git commit -m "Version1 of my file" filepath or name.
+git log - Using this command you can see all the versions of the files. Ex: git log "filename."
+git reset- You can get back to any version of the file.Ex: git reset --hard "commit-id_of_file" which you can find in git log.
+git remote add origin "repo_link" -->git push main- To push the code into your github
+
+git clone - To download the code or repository from github using https. ex: git clone "link_of_repo" locally.
+
+
+GIT Branching Strategy:
+Main Branch/Master Branch: Whenever the developer wants to add an additional breaking feature to an existing app,instead testing and 
+linking the new feature with the existing app, the developer will develop and test the new feature seperately which is callled as Branch.
+Whenever, they thought that the new feature is perfect then they add that branch to the existing application(main branch) and will 
+delete that new branch of new feature.
+
+Active development will be happening like bug changes or any small changes.
+
+Feature Branches:
+Whenever we want to add a new feature, there will be some branches that are already there and multiple people will work on multiple
+new features everyday, so whenever you have finally fixed a new feature you can just merge it to the Main Branch.
+
+The differnce is that for Main Branch, we are creating the feature individually not connected to the main app's branch or repository
+we are adding the new feature to main and deleting that new feature's branch.
+But in Feature branch, the branch is connected to the main branch whenever the new feature is ready we will just merge the feature branch
+to the current day's app main branch.
+
+Release Branch:
+Whenever you want to ship the existing product to the customer you will cut the main branch of the app and 
+you will send that to customer and they will use that app until the changes are done by or.g
+
+In this branch, all the released versions of the code will be available in this branch, So whenever we want to downgrade and 
+release a downgrade version then we can send that version to production. 
+
+Hotfix branch- In this branch, if there is any production issues after deploying the branch to production, then those will get fixed 
+in this hotfix branch then will send them to all the branches production, feature, Release all.
+
+git branch- to list all the branches
+git checkout -b branch_name - To create a new branch in current repo and the new branch will inherit the 'main' branch files.
+In the new branch, if we create a new file it will not find in the main branch until we do git merge or git cherry-pick or git rebase.
+git checkout branch_name - To switch between the branches we can use this.
+
+git rebase "branch_name" or git merge "branch_name"- Both are used for to merge the changes of new branch to the main branch,
+---git merge branch_name
+What it does: Combines the histories of two branches by creating a new merge commit.
+Commit history: Preserves the original branching structure. The commits from the merged branch appear as a separate line in the history.
+Log appearance: The log may look "unsorted" by time because it reflects the actual branching and merging structure.
+
+---git rebase branch_name
+What it does: Moves or "replays" your current branch's history commits on top of another branch.
+Commit history: Creates a linear history by rewriting commits.
+Log appearance: Appears more "sorted" by time because it eliminates the branching structure.
+
+---git cherry-pick is used to apply a specific commit (or a range of commits) from one branch onto another, 
+without merging the entire branch.
+git checkout main
+git cherry-pick abc1234
+
+
+To deploy an nodejs application in aws ec2:
+1.Install nodejs and npm earlier in root. Using sudo yum install npm or nodejs.
+2. Clone the project from github
+git clone https://github.com/your-username/repository-name.git
+3.In the folder create a hidden folder called .env, enter domain, port and access keys.
+Example:
+DOMAIN= "http://localhost:3000"
+PORT=3000
+STATIC_DIR="./client"
+
+PUBLISHABLE_KEY=""
+SECRET_KEY=""
+4.Initialise and start the project
+npm install
+npm run start
+
+5. Make sure in Inbound rules you open port 3000.
+
+Top 15 AWS Services for Devops:
+1.EC2
+2.VPC
+3.EBS
+4.S3
+5.IAM
+
+Configuration Management(CM):
+Puropose of CM - To manage multiple servers
+To replace the below things we use CM using Ansible to automate.
+
+1.Upgrades - Upgrading the linux versions of the distributions
+2.Secure patches- Upgrade to new secure patches.
+3.Installation- Installing the softwares like ide's, jdk, databases in each linux server and give it to developers
+
+How would you implement rolling updates with zero downtime using Ansible?
+You would use Ansible's handlers and conditional tasks to update servers one at a time, ensuring that one server is always 
+available while others are being updated. 
+
+Ansible over Puppet:
+1.Ansible uses push model(we just need to execute code) whereas puppet uses pull model
+2.Ansible is an agentless architecture uses Dynamic Inventory amd Puppet is a master slave architecture.
+3.Ansible uses YAML and Puppet uses puppet language
+4.Using Ansible galaxy we share the modules with different orgs.
+
+Disadvantages or areas it can improve:
+1.Not better support for windows compare to linux.
+2.Debugging is not clear and it is tough.
+3.Performance
+
+Ansible support both linux(ssh protocol) and windows using winRM protocol
+Ansible uses python as custom modules.
+
+To do password-less authentication for a server with other server-
+1. In main server you have to generate key using 
+a. ssh-keygen, click enter and enter.
+b. cd /root/.ssh --> copy key in id_rsa.pub.
+c. open the target server whose server you want to access.
+d. Do ssh-keygen, click enter and enter.
+e. Then, cd /root/.ssh --> paste key in authorized_keys file.
+f. Then come to main server and use "ssh private_ip_of_target_server".
+
+In whole what I did that copied the public key of main server to authorized_keys of target server.
+
+Ansible Playbooks: These are like file of code in ansible.
+ansible adhoc command - Not everytime we need to create Playbooks we can also run them as commands if they were one or two
+instructions.
+
+Command to create a file in the servers that are in the inventory file.
+ansible -i inventory all -m "shell" -a "touch file1"
+here, i refers inventory, -m refers module, -a refers arguments, all means all the hosts in inventory_file and 
+touch file1 is shell command.
+
+We can do grouping of the servers in inventory_file.
+Example:
+[webservers]
+172.21.33.41
+
+[dbservers]
+172.33.36.33
+
+ansible -i inventory webservers -m "shell" -a "touch file1"
+
+To write a ansible playbook to install and start nginx:
+#Fisrtly we need to have the authentication to all the servers in the inventory file.
+#'-' represents list 
+
+---
+- name: To install and start nginx
+  hosts: all  #we can write all if you want to install in all the ip's in inventory or you can also give a specific ip
+  become: True  #To change the user to root we use "True"
+
+  tasks:
+   - name: To install   
+     yum:                   #Packager for the distribution
+       name: nginx
+       state: present  #Present means Install
+
+   - name: To start nginx
+     service:
+       name: nginx
+       state: started
+       enabled: yes
+
+#To run this "ansible-playbook -i inventory first_playbook.yml"
+
+We can use the "ansible-playbook -vvv -i inventory first_playbook.yml"--> To check the logs of the ansible process
+-v---> Verbosity
+
+Whenever we want to create a playbook to write 100's of tasks and complex things we use Ansible Roles in ansible.
+To create a role -> ansible-galaxy role init "role_name"
+There will be multiple files created in that role folder like tasks, meta, handlers, var, templates, files.
+We can write all the tasks in the task folder.
+ex:# roles/my-role/tasks/main.yml
+- name: Install Apache
+  apt:
+    name: apache2
+    state: present
+
+And to execute this role we can create an other yaml file. We can mention that role here,
+ex:# playbook.yml
+- hosts: webservers
+  roles:
+    - my-role
+Using, ansible-playbook playbook.yml --> we can execute this role.
+
+Infrastructure As Code(IAC):
+Whenever you want to automate the services of Infrastructure in cloud or on-premises, if we do it using any scripts then it is
+called as IAC.
+
+Now, In a company is using AWS we can connect or automate the services using AWS CLI or AWS Cloud Formation Templates(CFT) using them
+we can talk to the api's of aws.
+In a company is using Azure we can connect or automate the services using Azure Resource Manager using them we can talk to 
+the api's of azure.
+If it is on-premise, we can use heat templates in open-stack platform and can automate the services.
+
+The problem is if a company is using hybrid cloud like for storge it is using AWS and deployment if it is using Azure Devops, then
+it is difficult and tough to learn all the tools for each cloud provider, for that there is a tool called Terraform.
+
+Terraform is an IAC tool and also a AAC(API as Code) tool where if we write a terraform script and mention which cloud provider that 
+we need to connect, it will talk to the api's of that cloud provider and make sure to execute the tasks by making the script to
+readable by that cloud API.
+
+Purpose of Terraform:
+1. Manage any Infrastructure
+2. Track your Infrastructure
+3. Automate Changes
+4. Standardize Configurations - Only one way to write scripts.
+5. Collaborate
+
+Lifecycle to run a Terraform script:
+terraform init --> terraform plan --> terraform apply -->terraform destroy.
+
+Terraform script to create a ec2 instance:
+provider "aws" {
+    region = "us-east-1"  # Set your desired AWS region
+}
+
+resource "aws_instance" "example" {
+    ami           = "ami-0c55b159cbfafe1f0"  # Specify an appropriate AMI ID
+    instance_type = "t2.micro"
+}
+
+#Follow these to run terraform init --> terraform plan --> terraform apply .
+
+State_Files:
+After executing this tf file, it will create a terraform_tfstate which is a state file used to track the main tf script and 
+if there are any changes to that tf script the state_file will track them.
+
+You should store your share files remotely, we can't share them in GIT.
+Terraform automatically will not store the state files to git. Don't try to manipulate the state file.
+These state_files has to go to remote backed(like s3 to DynamoDB to lock the records) and whenever we run the script once again
+and we will get another state_file and do the same process.
+
+Terraform Modules:
+These are the reusable scripts of terraform, whenever we are created some scripts if we are pushing them into github, 
+later we can use them as modules in other scripts.
+
+Disadvantages of Terraform:
+1.State file is single source of truth in sense of tracking of a tf script.
+2.Manual changes to the cloud provider cannot be identified by state file and auto-corrected.
+3.Not a gitops friendly tool. because if there is any changes directly made in cloud provider not through
+terraform then git cannot able to get that info.
+
+CI/CD:
+For any succesful delivery of an application, there are some processes that the product should goes
+1.Unit Testing  - Basic testing of giving input and getting desired output.
+2.Static Code Analysis - Does the code is good syntax and generic and not using unecessary variables.
+3.Code Quality / Vulnerability - Is there any way in code that the code can exposed to hack.
+4.Automation Testing - Functional testing like end-to-end testing
+5.Reports - Reports of above processes
+6.Deployment - Deploying the product/application
+
+To automate all these things we need a CI/CD Tool like - Jenkins
+More than Jenkins there were lot more fetures in Github Actions.
+
+Instead of using master-slave config, better to use docker containers using docker pipeline in jenkins plugins.
+It will save the resources like, if we want to run a pipeline, then we need other 2 or 3 vm's but in docker the containers
+will get created while build phase after then it will delete the containers itself.
+
+Github Actions:
+Solely works using Github.
+It will run the pipeline in the Github itself does not need any self hosted runnerslike jenkins.
+It has much good interface when compared to jenkins.
+
+In Github Actions in .github/worklow file we will create a yaml file with all the actions that we need to do 
+during pipeline.
+Actions will be like on:[push] or [pull] or [commit].. like we can mention that when we need to run the pipeline of this folder or 
+the product.
+We can also create multiple files in workflow, which tasks to do for which action.
+
+There are two types of runners in GITHUB Actions:
+Runners: It is a place where your job gets run like ec2 instances, docker containers or worker nodes in jenkins
+
+1. Self Hosted Runners:
+It is like what we use in jenkins using instances or docker, but in github actions also we can use this self hosted runner because,
+1. In company, if the project is private repo and 
+2. We need huge servers to run the job means high ram or storage.
+3. If it is a secure project we can't run on github hosted runners. 
+
+-->Using self hosted runners in Actions we can configure a instance with http and https ports in ec2 for inbound and outbound
+traffic of the jobs from github. In actions file we need to change runs-on: self -hosted.
+
+2. Github Hosted Runners:
+If it is a open project means if the source code of the project repo is public then we can Github Hosted Runners,
+like github itself will provide runners we don't need any instances for that, we don't own the runner and after 
+executing the pipeline then that runner gets down.
+
+Docker:
+Why do we move into containerization when we can use VM's like EC2 for deploying applications?
+
+It is because normally for a physical server(100gb) there will be a hypervisor which is used to create multiple VM's on it,
+if we create 4 vm's or ec2-instances with 25gb each, if it is running only 1 application of 10gb then all the other memory 
+is getting wasted which costs a lot.
+
+Drawback:
+To minimize the above problems we can use containers, which are light-weight because it does not have full operating system.
+which will make them less secure compare to VM's.
+Because the docker we apply them on our VM's/Ec2-instances of linux from those ec2 the docker will use the resources.
+
+A Container is a package or bundle which combined of Application libraries and System Dependencies. 
+Any other libraries if it needs, it will use them from the Ec2/Vm's that the containers are deployed.
+Because of this, the application will also become less in size compare to when we deploy them direct in VM's.
+
+Lifecycle of a Docker Container:
+Docker File -->using build command --> Docker Image --> run command --> Docker Container.
+These all are created using Docker engine where it will get the commands it will craete the above cycle.
+
+The drawback is, if the docker engine will go down all the command will not work and containers will also stop work.
+To overcome this, there is a product called Buildah.
+
+Each container that are there in a VM should have the isolation between them. There is a base image which has minimum
+system dependencies for each container where they were getting from the main kernel for isolation.
+
+Docker is a containerization platform that provides easy way to containerize the applications.
+
+Docker Daemon: It is the heart of docker. It listens to the docker api requests,To create a container in dockerCLI the daemon will respond 
+to all the commands and it will ensure to do the task.
+
+Lifecycle of a Docker Container:
+Docker File -->using build command --> Docker Image --> run command --> Docker Container.
+These all are created using Docker engine where it will get the commands it will craete the above cycle.
+
+Docker file: It consists of set of insrtuctions that tell the daemon using build command to do the tasks in file.
+Docker Images: It is like snapshot of the instructions that are in Docker File.
+Docker Container: It will have all the dependencies we mentioned in the docker file.
+
+Docker Registries: It is a public registry. where you can share the images in this registry. Similarly, we can also create a
+private registry in Docker Hub.
+
+DockerHub just like github, but in github we store the source code, but in docker hub we store images.
+
+Access tokens for Dockerhub:
+docker login -u saisivesh67
+dckr_pat_rbSorru1h7mc5jtaNb7l2pRluzU
+
+Installation of Docker:
+sudo yum install docker.io -y
+to check: docker run hello-world
+
+Dockerfile ex:
+FROM ubuntu:latest
+
+# Set the working directory in the image
+WORKDIR /app
+
+# Copy the files from the host file system to the image file system
+COPY . /app
+
+# Install the necessary packages
+RUN apt-get update && apt-get install -y python3 python3-pip
+
+# Set environment variables
+ENV NAME World
+
+# Run a command to start the application
+CMD ["python3", "app.py"]
+
+After writing this, we use build command to create image
+docker build -t sivesh45/docker-first-file:latest . ----> '-t' means tag of image and name is for dockerhub repo and file of repo 
+
+docker run "image_name" or "image_id"
+
+docker ps : To see the current running containers 
+docker ps -a : To display all the containers that docker created  
+docker images : To display all the images that created
+
+docker rmi "image_name or id" : To delete a image 
+docker rm "container_name " : To delete a container
+docker stop "container_name or id" : To stop a running container.
+
+What is the Difference Between Docker stop and Docker kill container? 
+Docker stop gracefully stops a container by sending a SIGTERM signal followed by a SIGKILL signal after a grace period. 
+Docker kill immediately stops the container by sending a SIGKILL signal, without waiting for it to shut down gracefully.
+
+RUN : It wil get execute while creating the image means at Docker build to install any packages in image.
+CMD and ENTRYPOINT: These commands will get executed at the start of the creation of a container not the image.
+
+ENTRYPOINT VS CMD: Both are used for entry point to run the docker file while creating container
+In entrypoint, we cannot able to configure the arguments that we were given like the main coding library.
+In CMD, we can able to configure the arguments we will give like port address.
+
+In CMD the arguments can be overwrite if we give other argument while docker run CLI command, but we cannot overwrite
+in ENTRYPOINT but we can append them with the existing arguments.
+
+Normally, we use them in combination beacuse, if we want to include default values we can have them at CMD, and in ENTRYPOINT
+we can overwrite them if there is any new value or through docker run cli itself we can do.
+
+Multi-Stage Builds:
+Multi-Stage Builds are used to reduce the size of the images that we create using standard Dockerfile in single stage.
+In this, the dependencies and tools that required to build the application will run in the first stage, then using an
+alias name we can use them in the subsequent stages, and in final stage it will uses the build environment (binaries)
+that we build in previous stages and it will run with the runtime env.of the application.
+
+Distroless images:
+Distroless images are used to secure the docker images by including only the essential runtime dependencies 
+required to run the application.
+Distroless images do not contain package managers, shells, or other unnecessary utilities. They are designed to 
+reduce the attack surface and improve security. Because we are not using the Operating system so that it will 
+not expose to the outside vulnerabilities.
+
+Containers are ephemeral(short lived) in nature
+
+Bind Mounts:
+Whenever, if we want to use any files that are from host operating system or base image,
+or for example, if we have a container that has nginx application, it normally has log files about users
+of an application, if that container got down somehow, then we can't access the log files in our life.
+And another example, if we need a file in the host os, to run the application of a container at that time
+to access this file we use Bind Mounts concept.
+
+In this concept, we bind a folder between os and container like the details in the folder in container will 
+bind to the folder in host os. So that, if that container goes down then we can use the folder in os for any details.
+
+Volumes:
+It is similar to Logical Volume in linux, Here for container to add the space we create a external logical
+partitions and attach that to the containers.
+We can attach a volume to multiple containers like attaching a file system.
+We can use any external methods like s3, nfs, ebs volumes to attach to a container.
+
+The main differnce to use volumes most is like we can use a entire volume but using bindmounts, we can only 
+access a specific directory from host os, but in volume we can attach volume from external methods also.
+
+docker volume create name -> To create a docker volume 
+docker volume inspect name -> To see the details of volume created 
+docker volume rm name -> To delete a volume
+
+To mount a docker container:
+docker build -t tag_of_image .--> To build image 
+docker run -d --mount source=volume_name,target=folder_of_image(/app) image_name --> To run and create container
+docker inspect container_id --> To see details of container
+
+If we delete the container we will have the data in the mount volume.
+
+Docker Networking:
+There are two types of mostly used networking used in docker for the connection between container-to-container
+and host-to-container:
+1.Bridge Networking 
+2.Host Networking
+
+Bridge Networking :
+Default network that docker uses.
+Whenever the container that has application inside wants to give response to the hosts, if the hosts os(ec2) or base image
+of the container and the application has bridge network connect then by using (Virtual ethernet(Veth0)-->docker0) which is a "Bridge"
+the container can able to connect with the host os, through that when a host wants any response from the application server 
+through this ip address it can send.
+Also, if there are more than one containers it will use same bridge which is a security concern.
+
+Here, to make the two containers not interact with each other (because for an application one can be login and other can be finance)
+we use Custom Bridge Network which is we can isolate two containers by using a seperate bridge for a container.
+
+We can use a custom virtual bridge to connect to eth0 of host os to make the container up for the requests.
+
+Host Networking:
+In this networking, the containers or ethernets and host os will have the same subnets for ex: if host ec2-ip-(192.7.6.3) then
+container app(192.7.6.3), so there will be direct connection, which made easy to get response.
+But it is less secure, because if there are more containers in host os accessing the same subnets then there will 
+be vulnerabilities because these containers will also be on same subnets.
+The direct networking between two or more containers in a host operating system 
+
+docker network create network_name -->To create a bridge network by default to create bridge network
+
+To connect a specific bridge network to a container that runs application
+docker run -d --name container_name --network=network_name image_name
+
+docker run -d --name login nginx:latest ->Nginx server in a image 
+To check networking,ip we can use --> docker inspect container_name
+To get into container terminal --> docker exec -t container_name /bin/bash 
+
+Docker Interview questions:
+1.What is Docker?
+Docker is an open source containerization platfrom, that enables developers to package applications
+into containers.
+
+2. How containers are different from Virtual Machines?
+Containers are very light weight in nature since it has only half operating system it has only
+minimal dependencies to run an application,
+where as for VM's it requires complete guest operating system which makes it heavy and the
+application size will be very high compare and each VM requires all the dependencies to containers.
+
+3. What is Docker Lifecycle?
+Users would create a Dockerfile with set of insrtuctions or commands that defines a docker image, like
+which base images should we choose and dependencies should be installed to run an application.
+
+Then using Docker build command, we will create a docker image which is  like a snapshot in a VM using
+docker daemon these commands will get executed.
+
+Then using Docker Run we will execute this docker image, it will create a container that includes the
+application and we will use that application 
+
+We can push this images to deocker registry in docker hub.
+
+4.What are different Docker Components?
+There will be
+Docker client: docker build, docker pull, docker run from docker CLI.
+Docker Host : Docker Deamon(which is responsible to execute any cli commands, it makes the commands in api form to execute them)
+Docker containers, Docker images.
+If docker daemon is down then everything related to docker will not run.
+Docker Registry: To push and pull images.Docker Hub
+
+5. What is the differnce between docker COPY and docker ADD?
+docker ADD- If you want to download anything from the internet(like wget in linux). To download log files from s3 or to download.
+docker COPY- It can only used to copy files from host system like source code into the container.
+
+6. What is the difference between CMD and Entrypoint in Docker?
+CMD- Arguments can be overriden in CLI when you want to run a application.
+Entrypoint- Arguments that cannot be overriden
+
+For example, if you want to run a python application, we can give the app name and code in Entrypoint, since we don't need to change them.
+The host url and port address we can give them at CMD since they can change.
+
+7. What are the networking types in Docker and what is the default?
+Different networking types in Docker:
+1. Bridge Network
+2. Host Network 
+3. Overlay Network 
+4. MacVlan
+
+The default networking in Docker is Bridge.
+using "docker create network name" - we can create a custom bridge network(don't need to mention type, default=bridge)
+
+Bridge Network:
+When you install Docker in a host, a docker0 bridge will be created with it which acts as a bridge between host os and the docker
+containers for the network communication b/w them.
+At the time of installation of docker0 an ip address network will be assigned to it.
+
+So, whenever we create a container, a veth pair which has two openings to make the docker0 bridge and container as eth0 connected.
+Docker will assign an ip address to eth0 interface of container from docker0 network range.
+
+Routing: The docker0 bridge routes traffic between containers and the host. Containers can communicate 
+with each other using their IP addresses on the bridge network.
+
+To isolate networking between containers?
+If we create a custom bridge network and assign it to a container then there will be isolation between the other
+containers to this container. Because, for custom bridge the ip address will be of different network range.
+
+command :docker run -d --name container_name --network=network_name image_name
+
+2.Host Network:
+In this mode, the container shares the host os like ec2 ip network but difference in ports. The container's network interfaces are
+directly mapped to the host's network interfaces. No bridge will be created
+
+Useful for performance-sensitive applications that require low network latency.
+docker run --network host -d nginx.
+
+3. None Network: If the containers need no network communication.
+This mode disables all networking for the container. The container has no network interfaces apart from the loopback interface.
+Use Case: Useful for security-sensitive applications that do not require network access.
+Example: docker run --network none -d nginx.
+
+4. Overlay Network: To connect the containers of one host(ec2) to other containers in other hosts.
+Description: This network type allows containers running on different Docker hosts to communicate with each other. 
+It is used in Docker Swarm and Kubernetes.
+Use Case: Ideal for multi-host container deployments and orchestration.
+Example: docker network create -d overlay my_overlay_network.
+
+5. Macvlan Network
+Description: This mode allows you to assign a MAC address to a container, making it appear as a physical device on the network.
+Use Case: Useful for legacy applications that require direct access to the physical network.
+Example: docker network create -d macvlan --subnet=192.168.1.0/24 --gateway=192.168.1.1 -o parent=eth0 my_macvlan_network.
+
+6. IPvlan Network
+Description: Similar to Macvlan, but operates at the IP layer. It allows containers to share the same IP subnet as the host.
+Use Case: Useful for scenarios where you need to control IP address allocation and routing.
+Example: docker network create -d ipvlan --subnet=192.168.1.0/24 --gateway=192.168.1.1 -o parent=eth0 my_ipvlan_network.
+
+9. What is Multi Stage Build in Docker?
+It allows you to build docker containers in multiple stages allowing you to copy artifacts
+from one stage to other, which makes it very light weight.
+
+10. What are distroless images in Docker?
+These images contains only the application and its runtime dependencies with a very minimum operating system 
+dependecies with a very minimum os libraries. No need to install the entire ubuntu os, we need only few lib
+that require to run the image.
+
+With this, the application will be very secure without having unnecessary libraries.
+
+11. Real Time Challenges with docker?
+a. Docker doemon is single point of failure. If it goes down somehow then the entire applications are down.
+Podman is a tool similar to docker that does not runs on a single daemon.
+
+b. Daemon runs as a root user. Which will cause security concerns for containers.
+Using podman we can eliminate this.
+
+c. Resource Constraints: If there are multiple containers running on single host, results in slow performance of apps
+
+12. Steps to take to secure containers?
+1. Use Distroless images.(less packages)
+2. Use custom bridge network for containers.
+3. Sync to scan containers.
+
+When you want containerize a mern application which is three-tier using docker.
+Three-tier:
+Presentation Layer(Frontend)
+Business Layer(Backend)
+DataBase tier
+
+For this we need to first create a seperate bridge network to add all the 3 tiers in that network.
+--> docker network create mern-network -->Note:not in "" originally
+To check ip range --> docker inspect "network_name"
+
+To build(image) and run(Container) frontend code -->
+build --> docker build -t mern-frontend .
+run -->  docker run --name=frontend --network=mern-network -d -p 5173:5173 mern-frontend
+
+docker logs container_name --> Gives the logs of running container
+
+After running frontend to connect with backend, first we need to start DB,
+--> docker run --network=mern-network --name mongodb -d -p 27017:27017 -v ~/opt/data:/data/db mongo:latest
+Here -v--> for volume to store the db date there.
+We will get image mongo and it will start run and create a container
+
+Now we have to build and run backend,
+--> docker build -t mern-backend .
+--> docker run --name=backend --network=mern-network -d -p 5050:5050 mern-backend
+
+Now, instead of running all these commands we can use docker compose file to execute them in yaml file.
+
+Docker Compose: 
+To run all the containers using a yaml file and adding a network to all them if requires.
+Nothing to create like images and all, just create compose yaml file run compose.
+docker-compose up -d --> To run the compose file 
+
+Ex:
+  frontend:
+    build: ./mern/frontend
+    ports:
+      - "5173:5173"  
+    networks:
+      - mern_network
+    environment:
+      REACT_APP_API_URL: http://backend:5050 
+
+Kubernetes:
+It is a container Orchestration Platform.
+
+Why do we need Kubernetes to manage the docker containers?
+1. Docker depends on Single host(single ec2):
+Whenever we create 100's of containers on a single virtual server(ec2), generally in linux there will be processes running
+according to the priority from kernel, so if most of the resources were utilized by first few containers then all the remaining
+containers will not have enough resources to run, at that time they will get stopped and will die.
+
+2. Lack of Auto Healing feature:
+Whenever a container in a host that has 10,000 containers go down or somehow it stops running then, the user needs go 
+and check the process and has to start the container, it will not start by itself. 
+
+3. Lack of Auto-Scaling:
+Whenever, if we have a container that has an application, on any festive seasons or any normal days if it receives lots of 
+requests than expected, then application load will get increased in container and it can't able to handle the load.
+
+4.Docker is a simple platform:
+It does not provide any Enterprise level Standards like Load Balancer, Firewall, Scaling, Healing, API gateways. 
+
+How do we counter the above probelms we face with Kubernetes?
+1. Docker depends on Single host(single ec2):
+Kubernetes is a Cluster which is group of nodes, In production it is istalled in a Master Node Architecture which like from
+one Master we create multiple nodes(VM's), so that whenever if there is any container that does not have resources due to other
+containers, then Kubernetes will send that container to the other node that has resources.
+If there is any faulty node or application it will send that one into other node.
+
+2. Lack of Auto Healing feature:
+Kubernetes has Autohealing feature. where it has API Server, if container is somehow going down so then API Server will receive
+that message and it will rollout a new container even if it doesn't goes at the moment.
+
+3. Lack of Auto-Scaling:
+Kubernetes has Replica Sets, which is a YAML file, if there is any traffic received by any container, in that yaml file
+we can write increase my replicas of container from 1 to 10. (manually)
+Kubernetes for auto scaling it has HPA(Horizontal pod Autoscaler), like if there is any increase of certain percentage 
+of load to a container, then it will spin up containers automatically.
+
+4. To support Enterprise level Standards, using Borg it will get those features to Kubernetes and it will help from here.
+
+Kubernetes Architecture:
+For example, To run a java application in a docker container, it needs java runtime and similarly to run that container
+it needs Container runtime which is provided by a (only)component called Dockershim in Docker.
+
+Since Kubernetes follows Master node(Control Plane) architecture, a pod will set to a master and that will allocate that pod to 
+a worker node which is Data Plane.
+
+Components that are in the worker node to run a Pod: Kubelet, Kube-Proxy, Container Runtime
+Kubelet:
+For Kubernetes, there is a Pod needs to run just like container in docker, inside pod we will have a docker container, 
+To run the pod it needs a component called Kubelet, it is responsible to mainitenance of pod, whenever the pod goes down Kubelet 
+will inform to a API Server in master node and makes the Pod auto-heal and up.
+
+Container Runtime:
+So, To run the container in a Pod it needs container runtime like docker, but in Kubernetes there are multiple components
+that helps to run this container like Dockershim, Containerd, Crio.
+
+Kube-Proxy:
+It provides networking using Ip-Tables to the pod in the Kubernetes like Ip address, Gateway, Load balancing also.
+
+Components that are in Master Node or Control Plane:
+1. API Server:
+It basically exposes the Kubernetes to external world, in a way it takes all requests from external world.
+It is responsible to decide like which pod needs to allocated to which node from Control plane and there is other component 
+
+2.Scheduler which acts to send that pod to a node in worker node that API Server suggests .
+
+3.etcd:
+It acts as a Backing store for entire cluster information. Where it will have the info about the enire cluster and node about pods.
+
+4.Controller Manager:
+There are Controllers in Kubernetes to perform certain actions on Pods, one of them which is a ReplicaSet where can 
+do scaling of the pods to replicate them by 2 or more whenever there is a load, it is controlled by 
+the Controllers and these Controllers manages by Controller Manager.
+
+5.Cloud Controller Manager:
+Every Cloud Provider will have a Kubernetes service like AKS, EKS, GKE. To make the Kubernetes to work with this cloud
+providers then we use CCM.
+
+In Kubernetes, most of the configurations happens through yaml files. 
+In docker to run a command we use docker run -d --name ___ --network ___ -v ___
+In Kubernetes instead of this single command we deploy all the components in a single yaml file(Pod.yaml).
+
+Pod: It is a wrapper for a container when we execute this pod, we will get a cluster ip address 
+for this pod, so that we can use the application in the container.
+
+Node: A worker machine in Kubernetes, part of a cluster.
+
+Cluster: A set of Nodes that run containerized applications managed by Kubernetes. For this example, 
+and in most common Kubernetes deployments, nodes in the cluster are not part of the public internet.
+
+kubectl--> To CLI for Kubernetes
+
+kubectl get all --> gives all the resources running(not only pods or nodes)
+kubectl get nodes --> shows nodes that are running(all matser and worker nodes)
+kubectl apply -f pod.yml-->To create a pod
+kubectl get pods --> Shows all pods that are running
+kubectl get pods -o wide --> Shows pods that are running with more info
+kubectl describe pod pod_name--> Detailed log of the pod
+kubectl logs pod_name  --> Info about pod
+kubectl delete pod pod_name --> to delete a pod
+
+Difference between a Container, Pod and Deployment:
+Container:
+As we know that it will have an application to run and all the resource we will get from Dockerfile.
+
+Pod:
+In Pod we will create it using the Yaml file where we mention the container name and images
+and other components to run a container like port, volumes, network all of them we will mention here.
+In one pod, we can run multiple containers like if a main container app has dependency on other containers
+for gateways then we can deploy all of them in a single pod
+
+example of a pod yaml file
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx
+spec:
+  containers:
+  - name: nginx
+    image: nginx:1.14.2
+    ports:
+    - containerPort: 80
+
+
+But using this pod.yaml file we can't give the AutoHealing and Scaling features.
+Using pod.yaml file we can just run the containers just like docker.
+
+Deployment:
+In Kubernetes it suggests not create a pod directly but create using Deployment resource which creates ReplicaSet, 
+it is responsible for Auto-Healing and Auto-Scaling by using ReplicaSet where it is also an yaml file.
+
+When we create this ReplicaSet(Controller) which is a Kubernetes controller, it will rollout the pods 
+but in this set we will mention how many pods has to be created of the same replicas for Scaling, also if a user deletes any 
+pod and the controller itself create that deleted pod which is Auto-healing because in the Replicaset it has mentioned as 100.
+So it will create the replica of pod itself.
+
+Once you create a deploy yaml and run it, it will create Replicaset and pod itself.
+
+kubectl get deploy --> To see the deploys
+kubectl get rs --> to see the ReplicaSets
+kubectl get pods -w --> To live watch the staus of pod lifycle like htop
+
+Sample yaml file to run nginx server for Deployment:
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment  #Pod name
+  labels:
+    app: nginx
+spec:
+  replicas: 3  
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx(Pod name or label)
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:1.14.2
+        ports:
+        - containerPort: 80
+		
+K8's Service Accounts(SA):
+Whenever a pod with a service wants to communicate with the K8's Api Server or wants to talk to services outside a eks-cluster
+then it needs a Service Account.
+Firstly, for any pod inside an eks-cluster to talk to outside AWS services, we need to create policies attach them to a IAM Role.
+Then, we need to bind that role to the Pod using OIDC Provider.
+OIDC Provider: Used to bind service account.yml to an IAM Role which has the policy of ALB controller(example)
+
+By default, there will be a Default SA in every namespace in K8's, with some default permissions. 
+So if we don't create a SA then service inside a pod can only bound to those default permissions and can't do much in the 
+namespace, if the service needs to access any webhooks or plugins.
+
+Kubernetes Service:
+Service will be on top of Deployment where it provides features like
+1.Load Balancing
+2.Service Discovery using Labels and Selectors
+3.Expose pod to the world	
+
+1.Load Balancing:
+Normally, whenwever a multiple requests will get received by a pod, it can't handle after certain then it needs to send that 
+requests to other pods it is done by using load balancing svc by creating a namespace svc and telling the user to request 
+this namespace for requests.
+This namespace will automatically will send the requests to all the pods after certain no.of concurrent requests
+received by the pods.
+
+2.Service Discovery:(Using labels)
+Whenever you create a Deployment there will be Ip addresses created for each pod's.
+Whenever, in Deployment if a Frontend Service Pod talks to Backend Service Pod using Ip address. If one of the Pod goes down, 
+Using ReplicaSet Controller we can create a replica of that pod again, it will have new IP address. 
+
+But, Now when the Frontend Pod still tries to talk with the previous Ip address only. Now, For that we want to manually change 
+the IP of the backend pod or using Environment variable, which is also Manual functions.
+
+But, when the user tries to access the application of that new pod it will be not accessible because, the new pod will create with 
+new ip address so the user cannot access that application, This is called Service Discovery Problem.
+
+To resolve the above issue, we have a Service, in the deploy yaml file we will mention the metadata like labels for 
+each pod we create. Now instead of using ip(by Kube-Proxy), now the user can use this label(unique) to access the same application.
+Fot this on top of Deploy we need to create Service. So, if a pod goes down and create once again using RS the ip 
+can change but label remains same.
+
+Now, for those two deployments we can have this service as a proxy using env variable we will define this service, 
+which routes the traffic to backend Labelled Pod.
+
+3. Using Service, Expose pod to the world:
+Where External users can able to talk to the service.
+There are 3 types of services can be created
+
+Cluster IP:(Service Discovery feature)
+If you create this type of service on top of a Deployment, then the application can only be access by the user in that 
+Kubernetes cluster which is created in a VPC, any resources outside cluster cannot access that pod's app.
+The ip addresses for Cluster Ip type is Private Ip's. Since there is internal network inside a EKS Cluster using Kube-Proxy.
+
+So, no EC2 Instance or Lambda created inside VPC also cannot access those services since the Kube-Proxy will set the IPTables in 
+a way that services inside that cluster only can talk within themselves(Ideal for databases services).
+It is very Secure than other two types.
+
+Node Port:
+If you create this type of service then the application can only accessible in the certain organization network.
+Here, there is some better access to the services than Cluster IP type.
+
+Once the service is created using Nodeport then the Kube-Proxy will set the IPTables in a way that the services inside the VPC 
+can access the Services now. Also the people who knows IP address of the node and port can access.
+Means each service each will have the IP address like (host IP of the instance):Port which is created by NodePort sevice. 
+Like that each service will have a Port in range(33000).
+
+It is also secure at the organizational level. Since the people or AWS resources who are under that VPC can access the Services.
+
+Load Balancer Service:
+If you create this type of service, then it will create the service using any cloud providers Orchestration service apps like EKS, AKS.
+If we create using AWS EKS then it will give us a ELB's Public Ip address where anyone from anywhere can access this application's pod.
+It is done by using control plane's Cloud Controller Manages(CCM) component.
+
+Normally, when we change to the LoadBalancer Type Service, the API Server in Control plane will tell the CCM to create a Load
+Balancer in the VPC, it can talk to the private subnet where the service is present and it gives a Elastic IP.
+
+Now, the connection will be like whenever we browse using the Elastic IP provided by cloud provider, the request will go through 
+public subnet and reaches the LoadBalancer and it can talk to the private subnet where the servicer presents.
+So here entire this is done by CCM. 
+
+
+1.Difference between Docker and Kubernetes?
+Docker is a container platform whereas Kubernetes is container orchestration platform,
+A container is Ephimeral in nature like it can goes down any time because it depends on single host, here Kubernetes has multiple
+worker nodes, if a node that has the pod goes down then that pod can add into other worker node. 
+And all the advantages like Auto-Healing, Auto-Scaling, Clustering, Enterprise support is in K8's
+
+2.What are the main components of Kubernetes architecture?
+Control Plane:
+1. API Server
+2. Scheduler
+3. etcd
+4. Controller Manager 
+5. CCM
+
+Data Plane
+1. Kubectl
+2. Kube-Proxy
+3. Container Runtime
+
+3.What is the difference between Docker Container and Kubernetes Pod?
+Pod is a runtime specification of a container in docker. A pod provides more declarative way of defining using YAML and you 
+can run more than one container in a pod.
+
+4. What is a namespace in Kubernetes?
+Namespace is a logical isolation of resources, network poliies, rbac(Role-Based Access Control) and everything.
+For example, if there are two projects or team using same K8's cluster. To provide isolation and no interruption 
+between these two teams we use namespaces using rbac's.
+
+5.What is the role of Kube Proxy?
+It works by maintaining a set of network rules on each node in the cluster, which are updated dynamically as services are
+added or removed. 
+When a client sends a request to a service, the request is intercepted by Kube-Proxy on the node where it was received.
+Kube-Proxy then looks up the destination endpoint for the service and routes the request accordingly.
+
+So, when the request needs to connect to a specifi pod in a node using iptables of Kube-Proxy, we can contact the right pod.
+
+6. What are the different types of services within Kubernetes?
+1.Cluster IP Mode  --> Access the service to the cluster's network
+2. Node Port Mode  --> Access the service within the VPC
+3.Load Balancer Mode --> Access the service outside VPC as well
+
+7. Difference between Node Port and Load Balancer type service?
+Nodeport:
+In this type, The Kube-Proxy will update the iptables with Nodes IP address and port that is chose in the service 
+configuration to access the pods.
+
+Load Balancer:
+In this type, the cloud control manager(CCM) creates an external Load Balancer Ip using the underlying cloud provider logic 
+in the CCM. Users can access services using the external IP address.
+
+9.What is the role of Kubelet?
+Kubelet manages the containers that are scheduled to run on that node. It ensures that containers are running and healthy,
+and that resources they need are available.
+
+Kubelet communicates with the Kubernetes API Server to get info about the containers that should be running on the node, and 
+then starts and stops the containers as needed to maintain the desired state. 
+It also monitors the containers, if they stops or any pod get stopped somehow, then it will intimate the API server then using 
+ReplicaSet Controller it will create other replica of that pod.
+
+10. Day to Day Activities on Kubernetes:
+To manage Kubernetes clusters, to found any vulnerabilities in the pods and help developers to troubleshoot the pods if any 
+application is not running.
+
+Expose app outside:
+To accesss the application in organization or only in your laptop or in ec2:
+Mention type: Nodeport and you can use public ip of ec2 and port you mention in service yml file.
+
+#Service for nodeport to expose the app to cluster or ec2
+  
+apiVersion: v1
+kind: Service
+metadata:
+  name: python-django-app(service name)
+spec:
+  type: NodePort  #change type to LoadBalancer to expose outside world
+  selector:
+    app: sample-web-app(label of the pod)
+  ports:
+    - port: 80
+      targetPort: 8000 #Port on which application is running
+      nodePort: 30007                                 
+
+Similary to acces application public, if you mention in type: LoadBalancer, then using 
+CCM and any cloud provider we will get a public ip.
+
+Through the cluster's ip address and its port 300007 in Kubeshark we can check LoadBalancing
+
+By the above two methods we can expose app to the outside
+
+To acheive Load Balancing:
+Using Kubeshark, we can analyze the round robin of the processes and requests takes place.
+
+Kubernetes Ingress:
+Why we need to use Ingress for Load Balancing since we have Service level Load Balancer Mode?
+1. Because the service Load Balancer, it depends on only Round Robin technique, but there are other cases of LoadBalancer where it was 
+missing in this, that we can find in Ingress like Sticky level LB, TLS LB, Path base LB, Ratio Based Lb etc ..
+
+2. Using Service Load Balancer, the cloud provider costs us for each static elastic ip address that it generates for each microservice.
+
+Whenever, we create a service type of LoadBalancer, entire thing of creating and generating Elatic IP is done by Cloud Controller 
+Manager. Like that if we create a Ingress manifest file there should be someone to actually create a Ingress Services it is done 
+by Ingress Controller.
+
+Ingress Controller: Where we can create all the public load balancers partership with K8's
+This is responsible to watches the resources that comes from ingress yaml manifest and updates
+the respective ingress controller that is installed in the cluster.
+
+Now, we install a Ingress Controller in the EKS-Cluster, TO
+
+For example, Means it updates the routes for the webpage in the ngnix.conf file.
+
+Unsecure Ingress: Because all of them works on http protocol
+Host Based LoadBalancing: Allow users directs traffic based on the domain name.
+Path-based LoadBalancing: directs traffic to different services based on the specific path within a URL, means in path we can give
+ /first,  /second,...
+Wildhost LoadBalancing: Where in host we can give "*.boo.com", that "*" can be anything it will give us response.
+Like docs.google.com, drive.google.com ....
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingress-example
+spec:
+  rules:
+  - host: "foo.bar.com"
+    http:
+      paths:
+      - pathType: Prefix
+        path: "/bar"
+        backend:
+          service:
+            name: python-django-app
+            port:
+              number: 80
+			  
+kubectl apply -f ingress.yml
+kubectl get ingress --> we will get ip address which we can use for host based loadbalancing
+
+Secure Ingress:
+
+SSL Passthrough:
+In this both client and server will have the https traffic only, because of that data is encrypted at both ends
+the LoadBalancer Uses will be less.
+Here LoadBalancer only uses for pass through of data.
+SSL passthrough is very secure, and it costs a lot because both the ends it is encrypted and 
+everytime a request comes at server, then it needs to decrypt everytime. It increases latency.
+
+If there is any malware that is encrypted in the request then through laodbalancer it will reaches
+to server because no decryption happening at LB.
+To reduce this we have SSL Offloading.
+
+SSL Offloading:
+Here, in server end when a request arrives at loadbalancer the request will be decrypted and sent to server.
+So the Load Balancer works here.
+But at other end there will be secure concerns of the data since it is getting decrypted at one end.
+But it is fast in response.
+
+SSL Bridging:
+Here, when a request passes through LB, it will decrypt at LB and reads the data if there is any malware and 
+sends the each request in better route after encrypting the data at LB itself.
+
+It costs more than SSL Passthrough.
+
+Kubernetes Security using RBAC:
+For User Management and Services that are running on Cluster. 
+RBAC mainly set the security for both users that having access to clusters and the services or applications
+that are running in the cluster.
+
+For User management in Kubernetes, K8's itself can't manage who to access the services and who has the operation authorization.
+For this it uses Identity Providers like for AWS --> for EKS we can use IAM for the role based access for the pods.
+Also Keycloak is most used tool for user management in Kubernetes.
+
+For service level permissions we can just create a service yaml file and there itself we can give the security concerns.
+
+To join the users to the services based restrictions we have two major components.
+1. Role(just like policies in AWS)
+2. Role Binding
+
+Roles and Role Bindings are used to assign permissions to users or service accounts in Kubernetes.
+
+--In Role, we will give to which file can access or edit and the operations that can done to a pod. So
+in role we create this policies using Yaml files.
+--In Role Binding, we can bind the roles that we written to the users.
+
+Init Containers:
+An init container in Kubernetes is a special type of container that runs before the main application containers within a pod start. 
+Its primary purpose is to perform setup tasks and ensure prerequisites are met before the application containers can begin executing.
+
+Ex:Init containers can be used to check if certain conditions are met before the application containers start. 
+For example, they could verify if a database is available before an application tries to connect to it.
+
+SideCar Containers:
+Sidecar Containers are additional containers that run alongside the main application container within the same pod.
+Sidecar Containers are dedicated to specific concerns, such as logging, monitoring, or handling network operations,
+ensuring isolation and modularity.
+
+Example: A sidecar container handling encryption/decryption tasks to secure communication for the main application.
+
+Custom Resource Deployment(CRD):
+Here, If anyone wnats to update the Kubernetes and extend their features into K8's they can submit their definition to 
+the Kubernetes and use them with this. ex:Istio.
+
+Prometheus:
+Prometheus is an open-source systems monitoring and alerting toolkit originally built at SoundCloud.
+It is known for its robust data model, powerful query language (PromQL), and the ability to generate alerts 
+based on the collected time-series data.
+
+Why it is needed? and Architecture of Prometheus
+When you install Prometheus in your cluster or system, it will also install the prometheus server which is
+able to collect the information from the Kubernetes cluster api, initally there are lot of metrics that exposes
+to the Prometheus server.
+
+Prometheus will collect the data and it will store in Times Series DataBase(TSDB) and this TDSB data will store in HDD or SSD
+of the system.
+
+It also has the Alert Manger where we can configure for some situations that happens in a cluster and send them to any services 
+like mails, messages etc...
+
+Prometheus Web UI where we can execute some Prom queries and it gives information with better UI.
+Grafana: It is a visualization tool where we can query from prometheus and gives the response in Grafana
+with better understanding using visuals.
+
+To install grafana using helm charts:
+helm repo add grafana https://grafana.github.io/helm-charts
+helm repo update
+helm install grafana grafana/grafana
+Then, we need to use kubectl get secret command that we get after install command, it provides password
+Then we need to make grafana to node-port service type to access in browser
+kubectl expose service grafana --type=Nodeport --target-port=3000 --name=grafana-ext"
+kubectl get svc
+
+To install Prometheus in Kubernetes cluster using Helm:
+1.command for prometheus --> helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+2. To update the repo --> helm repo update
+3. To install ---> helm install prometheus prometheus-community/prometheus
+4. To check --> kubectl get pods
+5. When you use helm charts to install Prometheus in Kubernetes cluster it will run few pods in system:
+   1. prometheus-kube-state-metrics-5bd466f7f6-dhk86 -- By default in this pod it will expose metrics to the cluster.
+6. We need to expose one of the svc to Nodeport so we can access prometheus in a browser.
+svc that need to expose - prometheus-server --> using below command
+kubectl expose service prometheus-server --type=NodePort --target-port=9090 --name=prometheus-server-ext
+Now, you can access the prometheus using cluster ip(using "minikube ip") with port=31110
+
+Using,"kubectl expose service prometheus-kube-state-metrics --type=Nodeport --target-port=8080 --name=prometheus-kube-state-metrics-ext"
+
+If I run this we will get metrics of the kubernetes clusters metrics with cluster ip and port of this metrics service in svc.
+It will give us in metric form , if we run this in prometheus ui we will get in data format and in grafana in a visual format.
+
+Sonarqube:
+It is basically a tool use for Static Code quality of an application in a pipeline.
+
+1. Code Quality Check:
+It checks for :
+a. bugs --> If any part of the code that behaves the code in a wrong way.
+b. Duplication --> If there is any same blocks of code is written instead of using Functions.
+c. Code Smell --> Right now the code works but in future there will be part of code that will give any issue.
+d. Securite Vulnerability --> Any part of code that raise any security issues.
+e. Security Hotspots: --> In future there will be any part of the code that faces security issues.
+Have to maually review the code for them.
+
+2. Code Coverage:
+We will have test cases for the code, how much percentage of the code is covered by using the testcases that we have.
+
+3. Quality Gate Check:
+There will be some parmeterized conditions that we can set the 80% of code coverage or only 5 issues in code or
+5% of code-duplication is fine, if the code passed these conditions then the code can work well.
+
+Using Sonar Scanner plugin all the above things can be done and reports will be generated by Sonar Server(UI). 
+We can use storage classes like ebs to store the reports that generated using Persistent Volume for Sonar.
+In Sonar, we can also trigger email notifications for any components in Sonar.
+
+CI:
+Git --> using webhooks it will trigger jenkins(like push, commit etc it will trigger the pipeline to run) ---> 
+Jenkins -- build java springboot using maven --> code quality using sonarqube --> It has to pass testcases by junit and mockito 
+--> create a docker image --> deploy it in a docker registry(dockerhub etc..)
+
+Always use Docker as agents for your jenkins file, we can lessen the configuration.
+Normally, there are multiple stages in jenkinsfile for that if you use ec2instances as slave then it costs more. Also, if on some days the 
+application is not in work then still the ec2 instance costs us. For each stage we need multiple instances which is lot of configuration.
+And need to install all the dependecies in each instance.
+
+Docker container can run multiple pods so it can run multiple stages of jobs in a single container after it build all 
+the stages then the resources will get freed up and container will get destroyed.
+
+Install plugins in jenkins 
+Docker Pipeline
+SonarQube Scanner
+
+Docker Compose:
+It is a multi-container-manage tool, where if there is an e-commerce website which has multiple microservices like login, payments etc.
+using a Yaml file.
+
+Why Docker Compose:
+So, for each microservice there will be a docker image and container using multiple build and run commands.
+If we do this using normal docker and if the developer needs to check application again and again, then he needs
+to run the commands in a shell script everytime, sometimes the docker commands used in shell script gets updated and it will 
+not work after somedays and also that will run each image and container.
+
+To resolve this we can use a star yaml file to run all of them. To test that application in your local machine we just need to use 
+docker-compose up command, it will create and run all the containers and using ctrl+c we can stop them there itself.
+
+This Docker-compose build and run the services but for build we need to use Dockerfile or an existing image.
+It is used for Local Development and Testing of QEA
+
+Rolling Updates:
+By default, the Deployment in Kubernetes uses the Rolling updates Strategy. To enable almost zero downtime in Deployments we use 
+Rolling Updates. But it is not for so much of complex services or fewer services.
+
+Here, like if we change the name of the new versions container in deploy.yaml file then, a new version pod will start and run 
+and able to get the traffic then after the nw pod is working fine then only the K8's will termintate one of the older pod and 
+then another new version pod will get created and it will also able to get the traffic then another older pod will get termintated, 
+like this the process continues.
+
+spec:
+ replicas: 4
+ strategy:
+	type: RollingUpdate
+    rollingUpdate:
+	   maxUnavailable: 25%
+       maxSurge: 25%
+
+Here, in above example the if you see we have 4 pods, 
+since we have maxSurge as 25% the 4 of 25% is 1, then one pod will get created and if it will receive the traffic, since the 
+maxUnavailable is also 25%, 25% of 4 older pods is 1 then 1 old pod will get terminate, like this the cycle continues.
+
+Canary Deployment:
+These are mostly used when there is any Ingress resource avaliable since it includes many micro-services.
+The service type loadbalancer can do all these using selector of that service
+In this deployment strategy, when the new version got rolled out for deployment then slowly by time the loadbalancer will 
+sends the requests to new version.
+Like first, 90% of requests to current version deployment then 10% to new, like that 80 - 20 and slowly it will transfer the load 
+to new version, by generating newer version pods.
+This, deployment can take some days or weeks unlike Rolling Updates. Because it handles complex services and applications.
+
+The annotation nginx.ingress.kubernetes.io/canary: "true" is required to mark this Ingress as a canary deployment. 
+Without this, Ingresses may clash.
+The annotation nginx.ingress.kubernetes.io/canary-weight: "30" determines the routing weight. 
+In this case, there's a "30%" chance that a request will hit the canary deployment instead of the main deployment.
+Let suppose , if there are 4 pods running previous versions then if we deploy the new pod, then 90% of the traffic will goes 
+to the old pods and 10% will be to new pods.
+
+Sticky sessions:
+It prevents data inconsistencies by directing all related requests to the same server. 
+Improved Performance: By maintaining session data on a single server, sticky sessions reduce the need for session data to be 
+synchronized across multiple servers.
+
+Blue-Green Deployment:
+
+Blue-Green Deployment is a technique used to release software updates with minimal downtime and risk. 
+In this approach, two identical environments, typically referred to as “blue” and “green,” are 
+set up: one represents the currently live production environment (blue), while the other is a clone where the new version 
+is deployed (green). Once the new version in the green environment is tested and ready, traffic is switched from blue to green, 
+making the green environment the new production environment.
+
+In this deployment strategy, if a new version of application got rolled out for deployment, the users who are using current
+version as server, will have a grace period until that period they will use the previous version.
+
+But after that period, all the users will get connected to new application version. Means the loadbalancer will send all 
+the new requests to new version.
+In this deployment, the load either routed to the old applications, or new applications, but never both at the same time.
+
+The deployment is very expensive compared to Canary, because we are creating two environments that has all the resources.
+Once, we get the feedback that green(new) environment pods are working fine, then only we can delete the old pods or else 
+it will become difficult to rollback when there is any issue in Green.
+
+source: https://medium.com/@muppedaanvesh/blue-green-deployment-in-kubernetes-76f9153e0805
+
+.kube :
+It is a hidden directory in a user's home directory that stores the Kubernetes configuration file, called kubeconfig.
+By default, the kubeconfig file is located in the $HOME/.kube/config directory. 
+
+Kubectl config:
+It will have the information about what are all the clusters, contexts like all the info of the things related to 
+k8's present.
+kubectl config get-clusters: To list all clusters in config context
+
+To set a cluster -->     aws eks update-kubeconfig --region <region-code> --name <your-cluster-name>
+
+To create them, first we will create or attach some role(like policies) or cluster roles and bind them to Namespace or to a Pod. 
+
+DaemonSet:
+A DaemonSet ensures that all (or some) Nodes run a copy of a Pod. As nodes are added to the cluster, Pods are added to them. 
+As nodes are removed from the cluster, those Pods are garbage collected. Deleting a DaemonSet will clean up the Pods it created.
+
+Deployment:
+API, Kind, Metadata--> Name,Labels, Spec --> Replicas, Under spec(Pod): -->template--> Metadata--> Name, Labels(used for Service Discovery), 
+Spec --> Service Account,list of Containers, Under spec:Container --> Name, Image, Ports, Volumes, Env.
+
+For Service:
+API, Kind, Metadata--> Name,Labels, Spec --> Type, ports(under spec) --> Port(which the pod uses to connect to a service),
+name,Container Port(target port of container in a Pod under Deployment), Selector(under spec)(Label of the Pod)
+
+Probes:
+There are three tupes of probes in Kubernetes, these are usually to check the container app in a pod is healthy and able to receive
+the traffic or not.
+
+1. Liveness Probe:
+It is used to check whether the container is healthy which is alive and the Pod is running or not. 
+It is done by sending a HTTP GET request to the container app's certain endpoint, if it sends 200-399 range of port 
+then the Pod is Healthy. 
+
+If it sends 400 or 500 then the Pod is unhealthy and the Probe will fails, then the Probe will terminate the current pod 
+try to restart that Pod once again. Then mostly it will work.
+Beacuse if only Liveness probe fails then it will be the Deadlock situation happens or if the Pod got crashed.
+
+2. Readiness Probe:
+It is used to check whether the Pod's container's app is able to respond to the traffic and Pod is manage traffic distribution 
+or not. If the it is not able to respond to the traffic and not giving desired response then the Probe will fails.
+
+Then the Probe will not terminate the Pod, but it will to not send the traffic to this Pod from the service endpoint. The traffic 
+will flows to other healthy Pods.
+It can be checked by using a TCP connection whether it can able to connect to the request or not.
+
+3.Startup Probe:
+This will get executed before Readiness and Liveness Probes.
+When a Container's app wants some initailTime for the liveness and readiness probes to trigger at that time we use Startup Probes
+(Ex: databases) and it will check whether the app is successfully started before it is gets any traffic.
+
+Probes have a number of fields that can be used to more precisely control the behavior of liveness and readiness checks.
+initialDelaySeconds: Number of seconds after the container has started before probes are initiated. (default: 0, minimum: 0)
+periodSeconds: How often to perform the probe (i.e. frequency). (default: 10, minimum: 1)
+timeoutSeconds: Number of seconds after which the probe times out. (default: 1, minimum: 1)
+successThreshold: Minimum consecutive successes for the probe to be considered successful after failure. (default: 1, minimum: 1)
+failureThreshold: How many failed results were received to transition from a healthy to a failure state. (default: 3, minimum: 1)
+
+Example:
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    app: myapp
+  name: myapp
+spec:
+  containers:
+  - name: myapp
+    image: k8s.gcr.io/myapp
+    livenessProbe:
+      httpGet:
+        path: /healthz
+        port: 8080
+        httpHeaders:  # optional
+        - name: Custom-Header
+          value: Awesome
+      initialDelaySeconds: 3
+      periodSeconds: 3
+    readinessProbe:
+      tcpSocket:
+        port: 8080
+      initialDelaySeconds: 5
+      periodSeconds: 10
+    startupProbe:
+      httpGet:
+        path: /healthz
+        port: 8080 
+      failureThreshold: 30
+      periodSeconds: 10
+
+Node Affinity: 
+Node affinity allows you to specify rules that dictate which nodes a pod can be scheduled on, based on node labels. 
+Types:
+RequiredDuringSchedulingIgnoredDuringExecution: The pod must be scheduled on a node that matches the specified label selector.
+If no such node exists, the pod will remain unscheduled. 
+
+PreferredDuringSchedulingIgnoredDuringExecution: The scheduler will try to schedule the pod on a node that matches the label selector,
+but it's not a strict requirement. If no suitable node is found, the pod can still be scheduled on a node that doesn't match. 
+
+Pod Affinity: 
+Pod affinity allows you to influence pod scheduling based on the labels of pods that are already running on a node. 
+Types:
+RequiredDuringSchedulingIgnoredDuringExecution: The pod must be scheduled on a node that has other pods matching the specified 
+label selector. If no such node exists, the pod will remain unscheduled. 
+
+PreferredDuringSchedulingIgnoredDuringExecution: The scheduler will try to schedule the pod on a node with other pods matching 
+the label selector, but it's not a strict requirement. 
+
+Real time commands:
+1.Whenever you want to restart a deployment, we can use 
+kubectl rollout restart deployment my-app -n webapps
+
+2. Whenever you want  to rollback to previous version
+kubectl rollback undo deployment my-app -n webapps
+
+3.Whenever you want to see rollout history (how many versions a deployment has deployed)
+kubectl rollout history deployment my-app -n webapps 
+
+4. To check where the mounted volume for a pod or deployments
+kubectl exec -it pod_name -n webapps -- df -h | grep var/lib/mysql
+
+5. To get logs of a certain pod when it has a crash
+kubectl logs -p pod_name -n webapps
+To create a crash in java microservice pod:
+kubectl exec -it pod_name -n webapps -- kill 1 // Killing the first process id in the pod
+
+6. To see whether the readiness probe is working fine or not 
+It is done by checking the pod is able to return the response.
+kubectl exec -it pod_name -n webapps -- wget -q0 http://localhost:8080
+
+7. To see all the mounts for a pod(inside the pod where the mounts):
+kubectl exec -it pod_name -n webapps | grep -A10 "Mounts"
+
+8. To see all the events sorted by time in a namespace
+kubectl get events -n webapps -- sort-by = metadata.creationTimestamp
+
+9. To enable HPA based on cpu usage, Here if cpu for a pod in deploy if greater than 50% then we will create a new pod 
+kubectl autoscale deployment deploy_name -n webapps --cpu-percent=50 --min=1 --max=5
+
+10. Whenever you want take a backup of a volume in a pod to the local machine 
+kubectl cp namespace/pod_name:var/lib/mysql ./my_backup(location of my local)
+
+11. Whenever you want to drain a node, so that we can patch that node like kernel updates, increase volumes etc..
+kubectl get nodes -n webapps
+kubectl drain node_name --ignore daemonsets --delete emptydir-data
+All the pods will get deleted on this node, then they will restart with other worker nodes
+
+Then, after the updates, when you want to execute the node once again,
+kubectl uncordon node_name
+
+Day-to-Day tasks:
+1. Monitoring using Pagerduty, Prometheus cpu increases --> kubectl scale replicas
+2. CI/CD maintenance --> Docker build failed if there is any missing dependency, add that or infrastructure provision in pipeline 
+3. K8's pod management --> To check logs of the crashed pod
+4. Cloud optimization --> Any ec2 machines that are not running and stopped , try to remove them and use Spot instances for 
+experiments , it will reduce 90% of cost. 
+5. POC'S --> working on new tools, later to include them in pipleines, if it is effective.
+6. IAC --> Creating some VM'S using terraform modules and configuring with some tools with Ansible within the VPC and adding more 
+ cpu and storage using security groups and handing them over to client.
+7. Cloud Resource management --> When a developer wants a new VM for some experiments, but we need to secure to allow only office Ip
+and we need to give minimal permissions using IAM policy. and about ports as well.
+8. Repo Management: If we have java microservice, if there is ay missing dependecies for the devops tools we are using like 
+for sonarqube in pom.xml we need to give the jacoco dependency, if using nexus artifact we need to mention url of that in pom.
+
+Persistent Volumes:
+Managing storage is a distinct problem from managing compute instances. The PersistentVolume subsystem provides an API for users 
+and administrators that abstracts details of how storage is provided from how it is consumed. 
+To do this, we introduce two new API resources: PersistentVolume and PersistentVolumeClaim.
+
+Persistent Volume:
+A PersistentVolume (PV) is a piece of storage in the cluster that has been provisioned by an administrator or dynamically 
+provisioned using Storage Classes. It is a resource in the cluster just like a node is a cluster resource. 
+PVs are volume plugins like Volumes, but have a lifecycle independent of any individual Pod that uses the PV. 
+This API object captures the details of the implementation of the storage, be that NFS, iSCSI, or a cloud-provider-specific 
+storage system.
+
+PersistentVolumeClaim:
+A PersistentVolumeClaim (PVC) is a request for storage by a user. It is similar to a Pod. Pods consume node resources and 
+PVCs consume PV resources. Pods can request specific levels of resources (CPU and Memory). 
+Claims can request specific size and access modes (e.g., they can be mounted ReadWriteOnce, ReadOnlyMany, ReadWriteMany, or 
+ReadWriteOncePod, see AccessModes).
+
+Service Mesh:
+A service mesh is a dedicated infrastructure layer that manages service-to-service communication within a microservices architecture, 
+particularly in Kubernetes. It simplifies networking, enhances security, and provides observability for complex distributed systems. 
+
+How Does a Service Mesh Work?
+A service mesh works by deploying a sidecar container alongside each microservice in a pod. This sidecar container acts as a proxy, 
+intercepting all inbound and outbound traffic for the service. 
+
+Instead of services communicating directly, they route requests through their respective sidecars, which handle functionalities 
+like service discovery, traffic management, security, and observability.
+
+How Does a Sidecar Container Work?
+A sidecar container is a secondary container that runs alongside the main application container in the same pod. 
+In a service mesh, the sidecar proxy handles network traffic, security policies, and observability tasks.
+
+Key responsibilities of a sidecar proxy include:
+Intercepting and managing service-to-service communication
+Enforcing security policies (e.g., mTLS for encryption)
+Collecting telemetry data for monitoring and logging
+Routing and load balancing traffic efficiently
+
+
+
+
+
+
+TO transfer files from local machine to remote machine in CMD using public ip :
+scp -i "C:\Users\2136136\Downloads\aws_login.pem" -r C:\Users\2136136\Downloads\modules ubuntu@54.166.96.63:/home/ubuntu
+Here,
+"C:\Users\2136136\Downloads\aws_login.pem" - Access into remote machine 
+C:\Users\2136136\Downloads\modules - files we want to copy 
+ubuntu@54.166.96.63:/home/ubuntu -  Location we want to paste them in remote server
+
+github Access token-
+mail: vemana.saisivesh@cognizant.com
+username: siveshvemana136
+Token: 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
+
+
+
+
+
+
+
+
+
+
+

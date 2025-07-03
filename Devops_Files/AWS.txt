@@ -1,0 +1,366 @@
+AWS
+
+Routing is the process of path selection in any network and it is also selecting the best path using some predetermined rules.
+A computer network is made of many machines, called nodes, and paths or links that connect those nodes. Communication between two nodes in an interconnected network can take place through many different paths.
+
+Routing creates efficiency in network communication. Network communication failures result in long wait times for website pages to load for users.
+
+Routing helps minimize network failure by managing data traffic so that a network can use as much of its capacity as possible without creating congestion.
+
+A router is a networking device that connects computing devices and networks to other networks. Routers primarily serve three main functions.
+1.Path Determination- A router determines the path data takes when it moves from a source to a destination.
+2.Data Forwarding- A router forwards data to the next device on the selected path to eventually reach its destination. 
+3.Load balancing- Sometimes the router may send copies of the same data packet by using multiple different paths. It does this to reduce errors due to data losses, create redundancy, and manage traffic volume. 
+
+How does routing work?
+Data moves along any network in the form of data packets. Each data packet has a header that contains information about the packet’s intended destination. As a packet travels to its destination, several routers might route it multiple times.
+
+EC2 Sizing and Configuration Options::
+1.Operating System(OS): Windows,Linux or Mac
+2.How much Compute Power & Cores(CPU)
+3.How much random-access memory(RAM)
+4.Storage Space: Network attached(EBS &EFS) OR Hardware(EC2 Instance store)
+5.Network Card
+6.Firewall Rules: Security Group
+Bootstrap Script(configure at First Launch):EC2 User Data.
+
+There are three different options to access AWS:
+1.AWS Management console(protected by your username,password and maybe multifactor authentication.)
+2.AWS Command Line Interface(CLI):(protected by access keys)
+3.AWS Software Development Kit(SDK):
+which is used whenever you want to call APIs from AWS from Within your application code and protected by the exact same access keys.
+
+IAM SECURITY Tools:
+IAM Credentials Report:
+This is at your account-level.This report will contain all your accounts users and the status of their various credentials.
+
+IAM Access Advisor Tools:
+This one is at the user-level and the Access Advisor is going to show the service permissions granted to a user and when those services were last accessed.
+
+22-SSH(Secure Shell)
+Inbound Rules- These are the rules that allows the connectivity from the outside to the EC2 Instance.
+Outbound Rules- These are the rules that allows the connectivity from  EC2 Instance to the outside.
+
+SSH:It will basically allow you to control a machine remotely all using the command line.
+
+AWS Security Groups:
+These are fundamental into doing network security in the AWS cloud.
+They will control how the traffic is allowed into and out of your EC2 instances.
+
+Multiple instances can be attached with one Security Group.
+
+EBS Volume(Elastic Block Store):
+https://medium.com/@mudasirhaji/step-by-step-process-of-how-to-add-and-mount-ebs-volume-on-ubuntu-ec2-linux-instance-a4be8870a4dd
+It's a network drive that you can attach to your instances while they run.
+
+So this EBS Volumes allow us to persist data, even after the instance is terminated and the whole purpose,
+we can recreate an instance and mount to the same EBS Volume from before and we'll get back our data.
+
+One EBS Volume can bound to a single specific availability zone.
+That means that you cannot have an same EBS Volume for different availability zones.
+If we do a snapshot, then we are able to move a volume across from different availability zones.
+
+EBS snapshots:
+You can take your EBS volumes and make a snapshot, which is also called a backup,at any point of time that you wanted to.
+Why do we do snapshots?
+Well, we can obviously restore them but we can also copy snapshots across availability zones or regions,and the idea is that you would be able to transfer some of your data in a different region on AWS.
+
+AMI(Amazon Machine Image):
+It is a customization of an EC2 instance.
+It wil has it's own software configuration,we can define and set up the operating system, we can set up any monitoring tool and if we create our own AMI, we're going to get a faster boot time and configuration time.
+Because all the software that we want to install onto our EC2 instance is going to be prepackaged through the AMI.
+
+Process:
+{So we have US-EAST-1A,and we can create the same instance as US-EAST-1B.
+So the process is we launch the instance in US-EAST-1A, we're going to customize it then we're going to create an AMI from it,this will be our custom AMI and then in US-EAST-1B. We will be able to launch from that AMI and we'll effectively create a copy of our EC2 instance.}
+
+EC2 Image Bulider:
+It is used to automate the creation of virtual machines or container images.
+It means to automate the creation, maintain,validate and test AMIs for EC2 instances.
+
+EC2 Instance Store:
+EC2 Instance is a virtual machine but it is obviously attached to a real hardware server and some of these servers do have disk space
+that is attached directly you know, with a physical connection onto the server and so a special type of EC2 Instance can leverage something called an EC2 Instance Store, which is the name of the hardware,the hard drive attached to the physical server.
+
+EFS(Elastic File System):
+It is a managed network file system. And the idea and the benefits of it
+is that it can be mounted to hundreds of EC2 instances at a time.
+
+So, before we had an EBS volume attached to only one EC2 instance at a time.
+
+Scalability:
+It means that it can handle greater loads by adapting.
+Two types:
+Vertical Scalability:
+In AWS, that means that you can increase the size of the instance.
+In AWS, for example,
+say your application runs on the t2.micro, and to do a vertical scalability for that application, that means that now we run our application on a t2.large. So we've changed the size of our EC2 instance. 
+Vertical scalability is very common,when you have a non-distributed system.
+It means that we're increasing the instance size. So we can scale up if we're increasing it or scale down if you're decreasing it.
+Example,from a T2.nano of 0.5 gigabytes of RAM, to a u-12tb1.metal,but has 12.3 terabytes of RAM, and 448 vCPUs.
+
+Horizontal Scalability:
+In Aws, to increase the number of instances or systems for your application.
+In AWS,for web applications, so if you have a web application or a modern application, you can scale it using Amazon EC2 and auto scaling groups.
+
+High Availability:similar to Horizontal Scalability.
+In AWS, it means that you are running your application and system in at least two availability zones on AWS.
+In AWS you use two availability zones, obviously, the goal of it is to usually survive a data center loss, a disaster, atleast on will be available.
+
+Elasticity:
+Elasticity means that there will be some sort of auto scaling in it, so that the system can scale based on the load that it's receiving. In this case, 
+we're going to pay per use, we're going to match the demand we're receiving with a number of servers, and obviously, we're going to pay just the right amount so we will optimize cost.
+
+Agility:
+Agility means that the new IT resources are only a click away, which means that you can reduce the time to make these resource available to your developers from 
+weeks to just minutes.
+
+Elastic Load Balancer(ELB):
+There are multiple services that offers Load Blancing in AWS.
+Load balancer:
+It is a server that will forward the internet traffic down to multiple servers(EC2 Instances) downstream.
+They're also called the backend EC2 instances.
+
+Example,We have our first use talking to our load balancer,and the load balancer will be directing the traffic to one of these three EC2 instances.and EC2 instance will reply back with something and the user will get the response.
+
+But now if a second user comes in,
+then they will get the reply from another EC2 instance.
+
+And if a third user comes in as you can expect, it will be replying from another EC2 instance.
+So the load balancer, the more users we have, the more it will balance the load across multiple EC2 instances and that will allow us to scale better our backend.
+
+So the ELB is a manager load balancer, so you don't need to be provisioning servers.AWS will do it for you and AWS will guarantee that it will be working.
+AWS will take care of all the upgrades, maintenance, and high availability of that elastic load balancer.
+
+There are three Kinds of Load balancers.
+1.Application Load balancer:
+It is for HTTP or HTTPS-only traffic which is called a Layer 7 type of load balancer because it's HTTP and HTTPS.
+
+Architecture:
+HTTP, HTTPS or gRPC protocol, it means it's Layer 7 and it's the ALB. Also, anytime you need HTTP routing features, this will be requested. For a static DNS as well, this would be very helpful if you wanna have a static URL. 
+So the architecture is very simple. 
+The users access your load balancers on one of the protocols just
+mentioned and then the load balancer routes traffic to the downstream EC2 instances. For example, if you've chosen the targets to be EC2 instances.
+
+2.Network Load balancer:
+It's ultra high performance. It allows for TCP and UDP actually. And it's Layer 4. So it's Layer 4 because it's lower level, so TCP and UDP.
+
+Architecture:
+So TCP and UDP protocol, and it's very high performance. It sends millions of requests per second. It gives you a static IP this time, so not a static URL, but a static IP through the use of elastic IP which are IPs that you own that you can move around. 
+So this NLB gives you a static IP and the architecture is the exact same as the ALB. The traffic is being sent to the NLB on the TCP and UDP protocol, and then sent, forwarded to downstream targets.
+
+3.Gateway Load Balancer:
+Its Layer 3.On GENEVE Protocol.
+It's to analyze the network traffic.
+
+Architecture:
+It is to route traffic to firewalls that you manage on EC2 instances, so that you can do, for example, classic firewall or intrusion detection or deep packet inspection.
+
+The architecture, it is a little bit more complicated. So the gateway load balancer doesn't balance the load to your application. It actually balances the load of the traffic to the virtual appliances that you run on EC2 instances so that you can analyze the traffic or perform firewall operations. That's why it's called third-party security virtual appliances. And they can be, many of them address represented one on this diagram. And so therefore, the traffic, when it goes to the gateway load balancer, first sends the traffic to these EC2 instances that will analyze the traffic. The traffic will be sent back afterwards to the gateway load balancer and then forwarded back to the applications. So the gateway load balancer here is in the middle to allow us to inspect the IP packets themself and to perform firewall features or intrusion detection or deep packet inspection.
+
+Auto Scaling Groups(ASG):
+The goal of an auto scaling group is to scale out-that means add EC2 instances to match an increased load or scale in- that means remove EC2 instances to match a decreased load.
+
+Once the auto scaling group activates, it does create or remove EC2 instances we can make sure that these instances will be registered, or de-registered into our load balancer according to the web traffic.
+
+For example, with one EC2 instance, web traffic can be coming in through our load balancer, which will be redirecting the traffic directly into your EC2 instance and as our auto scaling group scales out by adding EC2 instances, the load balancer will have them registered and will send traffic to them as well. So as we add on more and EC2 instances, the load balancer distributes more and more of the traffic, all the way to the maximum size of your auto scaling group if it scales all that point.
+
+Amazon S3:
+It is an infinitely scaling storage in AWS.
+Many websites use Amazon S3 as a backbone and many AWS services will also use Amazon S3 for integrations as well.
+
+So Amazon S3 stores files into buckets these can be seen as top level directories. And actually, the files in these S3 buckets are called objects. 
+The buckets name must be globally unique in AWS.
+S3 looks like a global service, but the buckets are actually created in a region.
+These objects, they're files and they have what's called a key. The key is composed of a prefix and then an object(file) name. For example, decompose the path from before into the prefix, which is my folder one and another folder, and the object name, which is my file dot TXT.
+
+S3 Security:
+User Based:
+IAM Policies -A user you can have IAM policies that this IAM policy is going to authorize which API calls should be allowed for a specific IAM user.
+
+Resource-Based Security:
+1.S3 Bucket Policies:
+These are looks like JSON based policies with Resources,Effect,Principle and Actions.
+There are bucket wide rulesthat you can assign directly from the S3 console.
+And this will allow, for example, specific user to come in or allow a user from another account, this is called cross-account to access your S3 Buckets.
+
+So in which situation can an IAM principle can access an S3 object? Well, if the IAM permissions allow it or if the resource policies allows it and that there is no explicit deny in the action, then the IAM principle can access the S3 object on the specified API call.
+
+S3 can host static websites and have them accessible on the internet and the website URL will be depending on the AWS region where you create this, either this or that.
+
+S3 Versioning- You can version your files in Amazon S3, and this is a setting you have to enable at the bucket level.
+
+Elastic Beanstalk:
+Elastic Beanstalk is a developer centric view of deploying an application on AWS.
+Beanstalk from a cloud perspective
+is a platform as a service or PaaS
+because we just worry about the code.
+Elastic Beanstalk is a managed service that means that all the EC2 instance configuration and operating system will be handled by Beanstalk itself.
+
+AWS CodeDeploy:
+CodeDeploys is also a way for us to deploy our application automatically.
+
+Now the difference that CodeDeploy is a bit more permissive.It doesn't need to be using Beanstalk or CloudFormation.This is completely independent.So with CodeDeploy,If we have our application,it's in version one, and we want you to upgrade it into version two.It also works with On-Premises Servers.
+
+So CodeDeploy will find a way for us to do this.
+It allows you to upgrade both your EC2 instances, applications, and your On-Premises Servers applications from version one to version two, automatically from a single interface.
+
+AWS Code Commit:
+Developers usually store code in a repository, using the Git technology
+A famous public offering is GitHub, AWS competing product is CodeCommit.
+• Source-control service that hosts Git-based repositories.
+• Makes it easy to collaborate with others on code.
+• The code changes are automatically versioned.
+
+AWS CodeBuild:
+Code building service in the cloud .
+Compiles source code, run tests, and produces packages that are ready to
+be deployed by CodeDeploy for example.
+
+AWS CodePipeline:
+Orchestrate the different steps to have the code automatically pushed to production.
+• Code => Build => Test => Provision => Deploy.
+• It is on the Basis for CICD (Continuous Integration & Continuous Delivery).
+
+AWS CodeArtifact:
+It is an artifact management system or a place to store the code dependencies.
+Software packages depend on each other to be built (also called code
+dependencies), and new ones are created. Storing and retrieving these dependencies is called artifact management.
+
+CodeArtifact is a secure, scalable, and cost-effective artifact management for software development.
+
+Developers and CodeBuild can then retrieve dependencies straight from
+CodeArtifact.
+
+AWS Systems Manager (SSM):
+• Helps you manage your EC2 and On-Premises systems at scale.
+• Another Hybrid AWS service.
+• Get operational insights about the state of your infrastructure.
+
+Most important features are:
+• Patching automation for enhanced compliance.
+• Run commands across an entire fleet of servers.
+• Store parameter configuration with the SSM Parameter Store.
+
+This allows you to start a secure shell on your EC2 instances and on-premises servers without having SSH access or the need for bastion host or any SSH keys.
+
+Without any Inbound Rules for an EC2 Instance, we can able to run commands on Secure shell of that Instance.
+
+Systems Manager Parameter Store:
+It's a way for you to store configuration and secrets securely on AWS. You can store anything you want, such as API keys, passwords, configurations, and it's serverless.
+
+Latency means it is the time it takes for a network packet to reach a server.  
+
+Why make a global application?
+• A global application is an application deployed in multiple geographies
+• On AWS: this could be Regions and / or Edge Locations
+Decreased Latency:
+• Latency is the time it takes for a network packet to reach a server
+• It takes time for a packet from Asia to reach the US
+• Deploy your applications closer to your users to decrease latency, better experience
+Disaster Recovery (DR):
+• If an AWS region goes down (earthquake, storms, power shutdown, politics.
+• You can fail-over to another region and have your application still working.
+• A DR plan is important to increase the availability of your application.
+• Attack protection: distributed global infrastructure is harder to attack.
+
+Regions: For deploying applications and infrastructure.
+Availability Zones: Made of multiple data centers.
+Edge Locations (Points of Presence): for content delivery as close as possible to users.
+
+Route 53:
+Route 53 is a managed DNS or Domain Name System.
+
+DNS means it is a collection of rules and records which helps clients to find the right servers through URL's.
+
+So let's go through the most common records in AWS.
+For example,
+say you are mapping www.google.com to an IPv4 address.Then this is called an A record.
+If you are mapping www.google.com to a long IPv6 address, it's called the quadruple A record.
+
+For Route 53 say, we want to see what happens for an A Record. So our Web browser is here. 
+That's a Web browser, and we have an Application Server that we've deployed that has a public IPv4.
+
+Now we want to be able to access our application server using a normal URL. So for this, we're going into Route 53 and we're going to create a, A Record. 
+And so that when the Web browser does a DNS Request for myapp.mydomain.com then the DNS will reply back with an IP. And then that IP can be used by our Web browser to get to our correct server. and then get the HTTP Response from our server. 
+And this is the basics of how a DNS work at a very, very high level. 
+
+So, the first one is called a Simple Routing Policy, which has No health checks. So our Web browser will go into our DNS system, does a DNS query and gets an IPv4 for example as a result, that's a Simple Routing Policy. 
+
+The Weighted Routing Policy, allows us to distribute the traffic across multiple Institute instances. So in this example, we have to assign weights to our Institute instances, for example, 70, 20, and 10, and then our DNS we'll make sure that our clients have 70% of the traffic onto the first one, 20% of the traffic onto the second one and 10% of the traffic on to the third one. This is effectively some kind of load balancing. So in this Weighted Routing Policy, we can use health checks. 
+
+Next, we have the Latency Routing Policy. So in this example, we'll say we are displaying our application globally, one in California, and the other one in Australia. And our users are all around the world. The Latency Routing Policy we'll look at where the user is located. And if they're located close to our Kelly American Institute instance, then they will be redirected to talk to that server. And if they're close to Australia, then they will be redirected to talk to the Australia server. And this is based on the latency. So, in this example, Route 53 will be used to minimize the latency between the users and the servers by making the users connect to the server that is the closest to them. 
+
+And then finally, we have a Failover Routing Policy in which we have a client and we have a primary institute instance and a Failover one. And so our DNS system will do a Health check On the primary. And in case the primary instance fails, then we will be redirected to the failovers. This helps with disaster recovery. So the clients will know exactly thanks to Route 53, which instance to connect to based on the health of that instance.
+
+Amazon CloudFront:
+It improves the read performance by caching the content of your website at the different edge locations.
+
+Because your content is cached all around the world, then your users all around the world will have a lower latency, and this will improve the user experience.
+
+CloudFront can also be used as a way to send data into an S3 bucket. So to upload data to file to S3,which is called an ingress.
+
+How does CloudFront work? We have the edge location all around the world, okay? And then it will be connecting to your origin. So would it be an S3 bucket or an HTTP server? And when the client connects and does an HTTP request into your edge location, then the edge location will see if it has it in the cache. If it doesn't have it in the cache, then it will go to the origin to get the request results. And then once you retrieve the results, it will be caching it into a local cache so that if another client requests the same content from the same edge location, then the edge location does not need to go to the origin.
+
+S3 Transfer Acceleration:
+There is a way to speed up the transfer using S3 transfer acceleration.
+
+The way it works is that your file is for example being uploaded from the United States into this war bucket in Australia. And so what we'll do is that we'll upload the file into a edge location that is going to be very close to a user in the USA and then using the internal network. The education will transfer the file to the S3 Buckets in Australia in a more reliable and fast connection.
+
+AWS Outposts:
+AWS Outposts are “server racks” that offers the same AWS infrastructure, services, APIs & tools to build your own applications on-premises just as in the cloud.
+• AWS will setup and manage “Outposts Racks” within your on-premises infrastructure and you can start leveraging AWS services on-premises.
+• You are responsible for the Outposts Rack physical security.
+
+AWS Wavelength:
+WaveLength Zones are infrastructure deployments embedded within the telecommunications providers’
+datacenters at the edge of the 5G networks.
+
+It Brings AWS services to the edge of the 5G networks Example: EC2, EBS, VPC…
+It Provides Ultra-low latency applications through 5G networks.
+
+Amazon CloudWatch:
+It is a monitoring service for AWS cloud resources and the applications you run on AWS. You can use Amazon CloudWatch to collect and track metrics, collect and monitor log files, and set alarms.
+
+AWS EventBridge:
+With EventBridge, you can react to events happening within your AWS accounts.
+
+AWS CloudTrail:
+CloudTrail is a service that provides governance,compliance and audit for your AWS accounts.
+And whenever you use an account's going to be enabled by default because CloudTrail will get an history of all the API calls or events that happen within your accounts.
+
+If someone does a command with the commanded line interface it will again be logged with CloudTrail as well as any service activity as well will be logged in CloudTrail.
+
+AWS X-Ray:
+It helps developers analyze and debug production, distributed applications, such as those built using a microservices architecture.
+
+AWS CodeGuru:
+• An ML-powered service for automated code reviews and application performance recommendations
+ Provides two functionalities
+• CodeGuru Reviewer: automated code reviews for static code analysis (development)
+• CodeGuru Profiler: visibility/recommendations about application performance during
+runtime (production) after reviewing code.
+
+AWS Health Dashboard: 
+It provides alerts and remediation guidance when AWS is experiencing events that may impact you.
+
+If your subnet is associated with a route table that has a route to an internet gateway, it’s known as a public subnet.
+
+Virtual Private Cloud(VPC):
+VPC is a Virtual Private Cloud. and is a private network for you to deploy your resources. for example,your EC2 instances,a VPC is linked to a specific region.
+
+Public subnet has direct connectivity to the Internet, and the internet can directly reach our public subnets.
+Private subnet is a subnet that is not accessible from the internet.
+
+VPC will be having an Internet Gateway. so that the public subnet will have a route(route table) to the Internet Gateway to be able to access the internet.
+
+If you have an instance in a private subnet, it is not going to be accessible from the internet. But you may want to give it access to the internet For example, to get updates for your operating system or to download files.
+
+NAT Gateway, which is managed by AWS, or in that instance, which is self managed. And that will allow your instances in your private subnets to access the internet while remaining private. So concretely, we create a NAT Gateway or Nat instance in our public subnet. And we create a route 
+from the private subnets to the NAT Gateway, and from the NAT Gateway to the Internet Gateway. And this will allow your private subnets to get internet connectivity.
+
+Network Access Control list(NACL):
+
+
+
+
