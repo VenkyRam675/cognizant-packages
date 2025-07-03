@@ -1,0 +1,449 @@
+IAM - For Authentication and Authorization
+Groups: We will create goups for dev, tester or db admins with certain policies attching toe each group.
+Users: We can just attach the new user to the group to acces the services instead of attaching the policies everytime.
+Policies: These are the methods that we can access in a particular service. We can customise the methods we can 
+perform in a service.
+
+Roles:
+
+Elastic: means we can scale the services up and down. so we use few services prefix as Elastic.
+
+VPC:
+First we will create a VPC and when a request coming from Outside to VPC, firstly it should pass the Internet Gateway and then
+and then it will see the public subnet following that there will be a Elastic Load Blancer which has target group and has route
+and route table to access the instance in a private subnet protected by security groups.
+
+To private subnet to access the outside internet we can have NAT gateway which masks the private ip of instance in private 
+subnet and appears the ip address as public ip.
+
+NACL is used to allow and deny the ports that needs to enter into subnet. It manages at subnet level
+But Security Groups is for only allowing the ports. It manages at instances level.
+
+Using NACL, we can add an additional layer of security at the private subnet level, where if at instance level a developer
+if he gave the access to all inbound ports, but if we set an NACL at that instance's subnet level then that instance follows the 
+NACL rules of ports.
+
+The NACL can block the security group rules at instance level, but If I allow a port in NACL and if I did not allow mention that 
+port in Security group then that does not run.
+But If I allow at SG level and deny at NACL then that port does not work.
+The traffic fisrt checks at NACL and gets to SG later.
+
+Route53 provides DNS as a Service in AWS.Used for Domain Registration.
+
+Bastian Host- Whenever a request needs to travel from public subnet to private subnet, since private subnet does not have any 
+ip address then bastian host will tell the request to enter in a certain path to the server in private subnet.
+
+Elastic Ip Address- It is an ip address where if I attach this to an ec2 instance if that goes down and If it is up again
+then that instance will have the same ip address.
+
+First create VPC including NAT Gateway in each public subnet with elastic ip in 2 availability zone, each in one
+Create Autoscaling gorup- First lauch a template, in network settings use the vpc and open port that you need the 
+application to run.-->  This will create instance you required in each availability zone if you mention.
+Create a bastain host instance in the same vpc we create, and give access to ssh only.
+
+sampleUltimate.pem
+scp -i C:\Users\2136136\Downloads\sampleUltimate.pem C:\Users\2136136\Downloads\sampleUltimate.pem ubuntu@3.27.251.235:/home/ubuntu
+Create a load balance in the vpc we created
+
+scp -i C:\Users\2136136\Downloads\sampleShell.pem C:\Users\2136136\Downloads\sampleShell.pem ubuntu@3.27.27.142:/home/ubuntu
+
+The target group port that we mention has to be the application server port and the listener port we will mention in 
+Load Balancer it can be any number, but it should open in security group you attach.
+
+CFT:
+An IAC Tool,These are the templates used to do Cloud Formation and managing the cloud in a AWS cloud.
+CFT supports only YAML and JSON Template in which it converts to api calls where an aws application can read.
+
+These are Declarative and Versioned.
+Declarative means what you see, is what you have --> We can understand by watching the template what it is going to do in aws.
+Versioned means we can change the template that we have used already and make it useful for other inputs.
+
+--To do some Infrastructure setup like VPC, EC2's we can use CFT or Terraform.
+--When you want to use some quick actions or info from AWS we can use CLI, also you can use these commands in a code.
+
+CFT also has Drift Detection, which we can see any changes in existing template.
+Mandatory field in CFT is "Resources".
+Structure of CFT:
+Version
+Description
+Metadata
+Parameters(Input parameters, where we can input some values)
+Rules(What are the values of parameters we can enter)
+Mappings(Map a variable with a parameter)
+Conditions(set a condition like which environment we can set this template or keys)
+Resources
+Outputs(To get any info after running the template)
+
+Drift: When we create a resource using CFT anf if there is any manual changes that happens to resource that we create using CFT
+we can find them using the Drift results, its shows the changes that has done manually.
+
+AWS CodeCommit:
+It is just like github where we can store the code artifacts managed by aes.
+
+AWS Codebuild: It is for to build the application like Maven
+AWS CodePipeline: It is like jenkins where we develop a groovy script to run the pipleline and make that as a docker image and 
+push it to the registry.
+Using jenkins if an organization want to migrate to another cloud then the pipeline remains same, but using CodePipeline the 
+entire pipeline we need to build again.
+
+If you want to grant access to a service, which needs access for other service in aws then we use IAM Roles.
+
+In code deploy:
+First, we need to create an application and mention the deploy platform(where you want to deploy your app like ec2 etc..)
+Then, if it is ec2, you need to create an instance with a tag(to use in code deploy if we want to deploy it in multiple instances
+then we do it using tags and values).
+Then, we need to install an agent inside the instance as a worker node using aws docs.
+Then, create an iam role with policy as fullcodedeploy and attach that role to the instance, for the codedeploy app to 
+talk with the instance we create.
+Then, you will create deployment group where you will attach ec2 tags and also the service role to access the ec2full.
+Then, create a deployment under deployment group where you will attach repo and commit id of appspec.yml
+
+AWS Cloudwatch:
+It is a gatekeeper for an aws account which implements the features like monitoring, logging, Alerting, Reporting. Using these
+feature we can keep track on our AWS Services.
+
+Monitoring:
+It provides us the real-time metrics like cpu utilization, memory and api calls my instance received.
+We can set alarms for these metrics whenever if they reaches some percent of utilization
+Log Insights: where we can find each action in detail.
+Custom Metrics: In ec2 by default we can only track cpu utlization but not memory for that we use this.
+Cost Optimization:
+
+AWS Lambda:
+It is a serverless Architecture.
+When we run a lambda function, to run that fuction at that time only it will create the infrastructure like servers, and need to run 
+that application in lambda and after the application runs the lambda itself delete those infra created during the run.
+This is because it is a serverless Architecture, different from EC2.
+
+We can also automate many things in AWS using Lambda and main functions are Cost Optimization and Security/Compliance.
+We can create lambda function and use triggers to trigger the lambda at some time or any cases.
+
+CloudFront:
+It is a Content Delivery Network Service in AWS. Where it will create copies of data in the edge locations of a region
+not only in Central region, due to this when a user want to access any data in a central region, since it has a copy
+in his near edge location the latency will get decreases.
+
+Image is a read-only template that has all the dependencies, packages and softwares that needs to run an application.
+While, Container is a runnable instance of a image. In which we can run that application independently.
+
+ECR:
+It is similar to docker hub where we can store an image and by default creates private repos.
+
+ECS:
+It is an Elastic Container Service which is not a Kubernetes Distribution but it itself is a Container Orchestration Environment(COE)
+like k8's, Docker Swarm by AWS. and it provides the cluster itself.
+Here, there will different naming terminology for all the things compared to K8's. This is why, to migrate a container to other 
+platform will be difficult.
+
+Here, CRD is main drawback for ECS because since k8 is a Open source platform where the updates will happen 
+regularly, and the comunity can contribute to K8's as well.
+ECS does not support Ingress, Argo CD.
+
+ECS is a simple Container service, with fargate which is a serverless like lambda, can be more effective where 
+you need not to go for ec2 and not worry about architecture.
+
+EKS:
+It is a managed Kubernetes service by AWS. EKS is a managed Control plane by AWS. but Data plane we need to provide.
+Here, EKS provides us the cluster in that cluster itself we can have the control plane or master nodes(as required) and all the 
+components of control plane provided and configured by AWS itself like, API Server, Scheduler, ETCD, Controller Manager and 
+Cloud CM(ccm).
+If there is any issue in them the AWS will give us the support, we don't need to debug them.
+
+When we create an EKS cluster, AWS offers us to create Data plane for them using EC2 or Fargate.
+If we use Fargate, that itself takes care of the data plane or worker nodes.
+
+If we use Load Balancer type Service in EKS then it will be more expensive. So that we use Ingress Service. which can
+provide the outside user to access the pod container in a private subnet.
+
+There will be ingress.yml where it has all the instructions to connect a container in vpc of private subnet.
+This will be performed by a Ingress controller which will be a Load Balancer.
+
+Container --> Pod --> Service --> Ingress --> Ingress Controller in a private subnet.
+When there is an Ingress detected by a Ingress Controller (Nginx..) then it will configure a Load Balancer in Public Subnet
+to route the traffic to the private subnet where the application is present.
+Access Keys For Ramesh Rahul AWS:
+Access Key: AKIAVSJOGS7JCXYWBWML
+Secret Key: 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
+
+For vemanasaisivesh07@gmail.com:
+Access Key - AKIAZAO5WU2NRAKIHA6E
+Secret Access Key - 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
+
+Terraform Vpc:
+Provider --> VPC(with CIDR block) --> Public Subnets in different availability zones(if map_public_ip_on_launch = true) it is public
+but if we not mention by default it can be private -->  Internet Gateway --> Route Table --> Route Table Association like for each subnet 
+--> Security groups includes Egress(Outbound) and Ingres(Inbound rules) for Instances --> Create Instance in each subnet with userdata
+-->Application Load Balancer --> Target Group for Instances(To which instances the LB has to routes) --> Associate Target for each
+instance like target id --> Add a listener so that it says what to do when the ip loads and it forwards to the target group of instances.
+
+EKS (Ingress Controller): Deploying an application using Ingress
+An application deployment using Ingress Service to reduce the cost if we deploy it using the Normal Load Balancer in AWS.
+
+Why we not use LB, because if we want to deploy multiple containers in that pod then we get 1000's of elastic ip's which is 
+very high on cost, so that we use Ingress Controller on the Service(without using LB Type).
+
+1. Download aws cli, eksctl, kubectl
+2. First we create an Cluster in EKS using eksctl command in cmd.
+3. Create a Fargate profile a seperate namespace for this.
+4. Write and apply the deploy.yml and ingress service.yml with all configurations.(It will create pods and services for the namespace).
+5. To run them and give access to outside users we have to use LB, So here if we install Ingress Controller in our aws cluster,
+then itself it configurate with the LB in AWS.
+6. We need an OIDC provider which provides an external services to access internal authentication(like gmail provides authentication 
+for many websites using OIDC), after installing.
+7. For the controller to create LB in AWS it needs some IAM permissions, so first we create policy and role for that controller.
+8.We need to install the aws-load-balancer-controller using helm charts and attch the role.
+9. If we see, the Load Balancer section in ec2 AWS we can find an DNS name for the application we want to deploy.
+
+Secrets Management:
+AWS Manages services for Secret Management are Systems Manager and Secret Manager.
+
+Systems Manager:
+We will use this when we want to manage the docker username, url or any information that is not much sensitive and still you want to 
+hide at that cases we can use Systems Manager using Parameters.
+Like, if we want to deploy a container to dockerhub using code-pipeline then we can use System Manager, in which codep-pipeline
+should have IAM Role access for Systems Manager. 
+
+Secret Manager:
+It is for to store much sensitive information like Password and tokens and it provides additional features like Rotational Policies
+Like after how manay days you need to change the information of password or something you need to store here.
+Because of this additional features, it costs highr than Systems Manager.
+
+Open Source much used Manager is Hashicorp Vault:
+If we are using Multi-cloud services in an organization like Aws and Azure then we can use this Vault than others,
+because they are only for the respective platform, but this is open for every platform.
+It also, provides much better encryption features since it is a community edittion, where new feature will get added quickly.
+
+AWS Config:
+It is a service that checks the compliance or Non-compliance of the other services features in the AWS.
+Here, Our requirement is to find that a ec2 instance has it's Monitoring on or off?, If the monitoring is off for an instance 
+then it comes under non-compliant instance in AWS.
+
+AWS Load Balancers:
+Application Load Balancer(ALB):
+It operates at Layer 7 which is at Application Layer in a OSI Model. It routes the traffic coming to the server based on the 
+end point used by the user for a request on browser.
+In this, we can set for which endpoint we can trigger which ec2-instance in listener rules using HTTP protocol since it is layer7.
+It follows Path based routing like that it allows many different types routing techniques.
+It is costlier than other LB's, since it has many different based routing mechanisms.
+
+Since, whenver a HTTP request sent by the user in browser, at start itself it begins to analyze to where this url needs to access 
+which ec2 instance. Because of this there will small Latency using this ALB
+
+Network Load Balancer(NLB):
+It operates at Layer 4 which is at Transport Layer in a OSI Model. It routes the traffic coming to the server based on the 
+It only works on TCP protocol since it is at Layer4.
+Since, it does not do any analyze at layer 7 at HTTP request, there will be no delay compared to ALB.
+This LB is ideal for streaming server, game servers since it requires no delay.
+
+Gateway Load Balancer(GWLB):
+This LB is for the traffic received by the application types like VPN, Firewall apps.
+It provides best security when applying the LB for this traffic which NLB or ALB not get.
+
+Cloud Migration:
+This includes of 5 stages:
+1. Preparation
+2. Planning
+3. Migrating
+4. Monitor 
+5. Optimize
+
+1. Preparation and Planning are one-time Activities:
+Here, we will check in which architecture that the application presents like Monolithic or Microservice.
+If it is Monolithic, then developers need to change it into Microservice Architecture. 
+If it is already in Microservice Architecture, then Preparation phase is done.
+
+2.Planning:
+If there are 200 Microservices, then we can migrate them like in phases where the critical one's will go in last phase 
+and some medium one's will go in some mid phase and easy one's in phase 1 and 2 like this, we can plan the migration of them.
+
+3.Migration:
+There will multiple Strategies for the Migration of services, but you need to choose only one and needs to follow them.
+They are Rehost, Replatform, Refactor/Rearchitecture these are main three Strategies.
+Others are: Retain, Relocate, Retire, Repurchase
+
+a.Rehost:
+It follows Lift and Shift Mechanism.
+If there is a microservice, you are just migrating them with same components and os that are in On-premises to AWS cloud.
+Like, it is not using any of the better features of the Cloud Platform.
+
+b.Replatform:
+Here, we will use some better components and the features of AWS i.e. High Availability, Load Balancing features in Cloud.
+
+c.Refactor/Rearchitecture:
+Here, we will architect a Monolithic Application for Microservice and make them like containers or some services that is updated 
+for now a days.
+
+d.Relocate:
+Here, we will change the platforms like using openshift instead of EKS.
+
+e.Retain:
+Some of the services will get retain in on-premises itself and using a specifice service we will connect this cloud migrated 
+service with those on-premises services.
+
+f.Retire:
+Some of the services that are of not using for longer time in On-premises, then there is of no use to migrate them to Cloud 
+instead we can retire them.
+
+4.Monitor:
+Using some cron jobs and automted scripts that we need to write, using them we will monitor the performace of the migrated services.
+
+5.Optimize:
+This is a one-time activity, where we will make an estimate that how much percent of cost we optimized by migration of services.
+
+Terraform:
+Statefile:
+It is used to track the resources and infrastructure that the terraform script has created till now.
+
+Whenever if we want to update the current existing infrastructure then it will gather the information from the state file and 
+make the changes that didn't happen in previously created infrastructure.
+Also, if we want to detroy anything at that time also using statefile the terraform get to know what are all created and 
+what it needs to destroy all those things will be possible using Statefile.
+
+Disadvantages of Statefile:
+1. Generally in an org, we will share the terraform configuration in a VCS. If the infrastructure that we created if it has 
+any secrets and passwords linked to it, then they will get comprimised.
+
+2. If one of the devops engineer will download the tf config from VCS and do any changes and if he didn't do any terraform plan 
+or apply, and directly and only pushes the changed tf config to VCS then the statefile will not get updated and if any other person 
+tries to see the statefile as proof of what is there in the tf script then he will get misunderstand by seeing the statefile and 
+if he runs the tf config then he will get some other infra compared to what is in statefile.
+
+To overcome above disadvantages we will use Remote Backend Process in Terraform.
+Here, we will create the configuration in a way that we will store the statefile in s3 bucket in the start itself.
+So, whenever we use terraform apply or plan the statefile in s3 will get updated and we can't acces it in our local.
+
+Using State Lock Mechanism, whenever if at a time two or more people trying to update the terraform config, this mechanism
+will wait for the statefil to get update for one user and after it creates for that user the lock will get open and works for 
+other user. So, in this way we will use DynamoDB table for state-lock.
+
+Provisioner in Terraform:
+It is used to deploy an application into an instance.
+It is basically to run the scripts just like while creating an instance we run script in user data.sh. Like that using provisioner
+we can run file and run shell scripts.
+
+Remote-Exec is used to create an scripts while creating the instances.
+File Provisioner is used to copy the file to a certain location in your instance.
+Label-exec is used to print certain output to a file or terminal in local.
+
+Terraform Workspace:
+When multiple departments people in a project has to use same modules for reusability instead of creating tf configuration everytime 
+for them we can use Modules.
+But once, we use a configuration for that it will create a statefile, if other member uses samefile config then the previoulsy created
+things will get replaced with new changed variables.
+For that we use workspaces and create each workspace for each dept and when we run tf file in that workspace it will craete a 
+statefile for that workspace itself.
+
+To create a tf workspace- terraform workspace new dept_name
+To switch to a workspace - terraform workspace select name
+
+Vault Management for Secrets through Terraform:
+1.Fisrt, we have to download the vault and all its repo and have start the vault.
+2. Then, open a port that HC Vault is running on your instance.
+3.Then, Fisrtsly in Vault create a mount point like "kv" and inside that create a secret and mention the key-value of secret password
+that we need to safe.
+4.Now, we need to choose a authentication mechanism like "approle" for the secret for it to communicate with a terraform configuration 
+or ansible.
+5.Now, we need to create a role and attach a policy of the secret in kv mount and in secret, that Terraform and Ansible can access
+this secret using these role id and secret id.
+5.Then, we need to generate role id and secret id for the secret we have created with approle mechanism.
+6.After, we will check this whether we were able to access by wrirting a tf config. and give all the details, we need to 
+read the data from that vault.
+7. We can test that using terraform apply.
+
+Terraform Migration:
+Scenario - We will do migration of already created infrastructure using console into the terraform, so that there will be entire 
+responsibility of creating infra using Terraform only.
+
+Because, the statefile will not have track of already created infra using console, we need to update the state file regarding the 
+current infra, this can happen using "terraform import"
+In the tf file we need to mention in the import keyword about "id" of that resource which is already there and we need to 
+mention "to" and give a variable and what resource of that id like "aws_instance.demo".
+Using terraform plan -generate-config-out = genrate_resources.tf
+Here, in "genrate_resources.tf" we can find the tf config of the existed resource.
+So, run "terraform apply", then the infrastructure will get imported and if you try run again "terraform plan" it shows 
+"No changes to infrastructure."
+
+Status Codes:
+Success (2xx):
+200 OK: The request was successful.
+201 Created: The request was successful and a new resource has been created.
+204 No Content: The request was successful, but there's no content to return. 
+
+Redirection (3xx):
+301 Moved Permanently: The requested resource has been permanently moved to a new location. 
+302 Found (Moved Temporarily): The requested resource has been temporarily moved to a new location. 
+304 Not Modified: The client's cached copy of the resource is still valid. 
+
+Client Errors (4xx):
+400 Bad Request: The server cannot process the request due to a client error, such as invalid data or missing parameters.
+401 Unauthorized: The request requires authentication, and the client has not provided valid credentials.
+403 Forbidden: The client does not have permission to access the requested resource.
+404 Not Found: The requested resource could not be found on the server. 
+
+Server Errors (5xx):
+500 Internal Server Error: The server encountered an unexpected condition and could not fulfill the request.
+503 Service Unavailable: The server is currently unavailable. 
+Other Important Codes:
+100 Continue: The server has received the request and is ready to receive the rest of the request. 
+
+Helm:
+It is a package manager for Kubernetes, where for a ubuntu machine there is a "apt" module which we used to install the service like 
+python, nginx, httpd....Using this helm command we can download the services into a Kubernetes cluster.
+
+There will be multiple repos for helm, in that repos all the service that we use in a K8's cluster will be bundled as Charts like 
+Prometheus chart, ArgoCD chart, etc.
+Charts - These are bundle of components or the YAML files that are needed to install the necessary services as Pods in cluster.
+All these chart will be in a repo.
+
+For example- You want to install nginx from bitnami repo 
+First we need to add the repo - helm repo add repo_name repo_url
+Then you can serch whether nginx chart is availabile in the repo 
+helm search repo bitnami | grep nginx
+then, helm install nginxv1 bitnami/nginx
+Here, nginxv1 is the release name or version name of nginx software, if there is any upgarde later we can use new release name
+
+helm list - To list all the charts insatlled in a cluster 
+helm uninstall release_name - To unistall a chart
+
+Creating a helm Package of two Deployments:
+1.First, Create dir: mkdir -p main_dir/{Deploy_1,Deploy_2}
+2. Now, To initialise helm chart folders in each sub-folder, we will use 
+helm create Deploy_1, helm create Deploy_2 
+
+This create, command will generate four folder and files in each of them like 
+Chart.yaml- Where you will write all the metadata of the chart means name of chart, version and App version of the deployment.
+templates dir - inside this we will create all the yaml configurations for the deployment like deployment.yaml, configmap.yaml etc.
+Values.yaml- This is like instead of giving default values in deployment.yaml, we can give the values like replicas, label name,
+resource limits etc .. all of the here.
+charts dir 
+
+3.We will give all those yaml's in the each folders(charts).
+4.After this we will package each chart using: helm package Deploy_1, helm package Deploy_2.
+5.Now, we will give helm repo index . --> This will create index.yaml file in the repo(main_folder) that what are all the things we 
+deployed in the repo.
+6. Them we can host them in a central hub like artifactory or Github.
+
+Now we can access them using helm commands and those will be deployed as pods in our cluster.
+
+Stateful(SG) and Stateless(NACL):
+
+A stateful security group allows inbound traffic for a specific rule and automatically allows the corresponding outbound traffic, 
+regardless of whether an explicit outbound rule is defined.
+It means that once a connection is established, the return traffic is automatically allowed, simplifying the configuration and
+management of network rules.
+
+A stateless network ACL requires explicit rules for both inbound and outbound traffic.
+Each rule in a stateless network ACL controls either inbound or outbound traffic, and there is no automatic allowance of return 
+traffic like in stateful security groups.
+
+
+
+
+
+
+
+
+
+
+
+
